@@ -7,6 +7,7 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{pxfonts}
+\usepackage{hyperref}
 
 \usepackage[margin=1mm]{geometry}
 \usepackage[bottomtitles]{titlesec}
@@ -212,6 +213,79 @@
             A => '0' A | '1' A | '.' B;
             B => '0' C | '1' C | '0' | '1';
     \end{lstlisting}
+\end{item}
+
+\begin{item}
+    Напишите регулярное выражение для:
+    \begin{enumerate}
+
+        \begin{item}
+            Множества идентификаторов, где идентификатор – это последовательность букв или цифр, начинающаяся с буквы или \_.
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{enumerate}
+
+                \begin{item}
+                    \begin{lstlisting}
+                        (?<={)((([A-Za-z][A-Za-z0-9]*)|(_[A-Za-z0-9]+))((?=})|;))+(?=})
+                    \end{lstlisting}
+                \end{item}
+
+                \begin{item}
+                    \begin{itemize}
+                        \item \lstinline|{Imposter420} $\Rightarrow$ Imposter420|
+                        \item \lstinline|{_420ImPoster} $\Rightarrow$ _420ImPoster|
+                        \item \lstinline|{__imposter} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{420ImPoster} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{Imp@ster} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{Imposter420;_420ImPoster;coolGuy} $\Rightarrow$ Imposter420;_420ImPoster;coolGuy|
+                        \item \lstinline|{_420ImPoster;__imp@sSt3r} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{_} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|Imposter420 $\Rightarrow$ $\varepsilon$|
+                    \end{itemize}
+                \end{item}
+
+                \item \url{https://regexr.com/6guc4}
+
+            \end{enumerate}
+        \end{item}
+
+        \begin{item}
+            Множества вещественных констант с плавающей точкой, состоящих из целой части, десятичной точки, дробной части, символа е или Е, целого показателя степени с необязательным знаком и необязательного суффикса типа – одной из букв f, F, l или L. Целая и дробная части состоят из последовательностей цифр. Может отсутствовать либо целая, либо дробная часть (но не обе сразу).
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{enumerate}
+
+                \begin{item}
+                    \begin{lstlisting}
+                        (?<={)((((-|\+)?(0|[1-9][0-9]*)|.[0-9]+|(-|\+)?(0|[1-9][0-9]*).[0-9]+)((e|E)(-|\+)?[0-9]+)?(f|F|l|L)?)((?=})|;))+(?=})
+                    \end{lstlisting}
+                \end{item}
+
+                \begin{item}
+                    \begin{itemize}
+                        \item \lstinline|{5;7;-8}; $\Rightarrow$ 5;7;-8|
+                        \item \lstinline|{0} $\Rightarrow$ 0|
+                        \item \lstinline|0 $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{-25.6;.01;2} $\Rightarrow$ -25.6;.01;2|
+                        \item \lstinline|{6;TheLetter;32} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{6e+2;4.6E-1;-3.1e0}; $\Rightarrow$ 6e+2;4.6E-1;-3.1e0|
+                        \item \lstinline|{6e} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{4e+} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{-.5} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{5L;-32l;24.55f;-21F} $\Rightarrow$ 5L;-32l;24.55f;-21F|
+                        \item \lstinline|{-0.216e+6F} $\Rightarrow$ -0.216e+6F|
+                        \item \lstinline|{4e+5.4} $\Rightarrow$ $\varepsilon$|
+                    \end{itemize}
+                \end{item}
+
+                \item \url{https://regexr.com/6gudb}
+
+            \end{enumerate}
+        \end{item}
+
+    \end{enumerate}
+
 \end{item}
 
 \end{enumerate}
