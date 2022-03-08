@@ -1,0 +1,127 @@
+\documentclass[]{article}
+\usepackage[default]{opensans}
+\usepackage[utf8]{inputenc}
+\usepackage[T1,T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{pxfonts}
+
+\usepackage[margin=1mm]{geometry}
+\usepackage[bottomtitles]{titlesec}
+\widowpenalty=0\relax
+\clubpenalty=0\relax
+\pagestyle{empty}
+
+\lstset{basicstyle=\rmfamily,
+        breaklines=true,
+        escapechar=!,
+        columns=fullflexible,
+        mathescape=true,
+        literate=
+               {=>}{$\Rightarrow{}$}{1}}
+
+\begin{document}
+
+%--------------------------------------------------------------------------------
+\section{Формальные языки, грамматики и их свойства}
+
+\begin{enumerate}
+
+\begin{item}
+    Дана грамматика. Постройте вывод заданной цепочки.
+    \begin{enumerate}
+    
+    \begin{item}
+        \begin{lstlisting}
+            S : T | T '+' S | T '-' S;
+            T : F | F '*' T;
+            F : 'a' | 'b';
+        \end{lstlisting}
+        Цепочка: \lstinline|a - b * a + b|.
+        \bigbreak
+        \textbf{Решение:}
+        \begin{lstlisting}
+            !\textcolor{red}{S}! => !\textcolor{red}{T}! - S => F - !\textcolor{red}{S}! => !\textcolor{red}{F}! - T + S =>
+                a - !\textcolor{red}{T}! + S => a - F * T + !\textcolor{red}{S}! => 
+                    => a - !\textcolor{red}{F}! * !\textcolor{red}{T}! + !\textcolor{red}{T}! => a - b * !\textcolor{red}{F}! + !\textcolor{red}{F}! =>
+                            => a - b * a + b
+        \end{lstlisting}
+    \end{item}
+    
+    \begin{item}
+        \begin{lstlisting}
+            S : 'a' S B C | 'ab' C;
+            C B : B C;
+            'b' B : 'bb';
+            'b' C : 'bc';
+            'c' C : 'cc';
+        \end{lstlisting}
+        Цепочка: \lstinline|aaabbbccc|.
+        \bigbreak
+        \textbf{Решение:}
+        \begin{lstlisting}
+            !\textcolor{red}{S}! => a !\textcolor{red}{S}! B C => aa !\textcolor{red}{S}! B C B C => aaab !\textcolor{red}{C B}! C B C
+                => aaa!\textcolor{red}{b B}! C C B C => aaabb C !\textcolor{red}{C B}! C =>
+                    => aaabb !\textcolor{red}{C B}! C C => aaab!\textcolor{red}{b B}! C C C =>
+                        => aaabb!\textcolor{red}{b C}! C C => aaabbb!\textcolor{red}{c C}! C =>
+                            => aaabbbc!\textcolor{red}{c C}! => aaabbbccc
+        \end{lstlisting}
+    \end{item}
+    
+    \end{enumerate}
+\end{item}
+
+\begin{item}
+    Построить грамматику, порождающую язык:
+    \begin{enumerate}
+    
+        \begin{item}
+            $L = \{ a^n b^m c^k\ |\  n, m, k > 0 \}$
+            \bigbreak
+            \textbf{Решение:}
+            \begin{lstlisting}
+                G ({a, b, c}, {S, A, B, C}, P, S)
+                P:
+                    S => aA
+                    A => aA | B
+                    B => bB | bC
+                    C => cC | c
+            \end{lstlisting}
+        \end{item}
+
+        \begin{item}
+            $L = \{ 0^n (10)^m \ |\  n, m >= 0 \}$
+            \bigbreak
+            \textbf{Решение:}
+            \begin{lstlisting}
+                G ({0, 1}, {S, A, B}, P, S)
+                P:
+                    S => 0S | 1A | !$\varepsilon$!
+                    A => 0B | 0
+                    B => 1A
+            \end{lstlisting}
+        \end{item}
+
+        \begin{item}
+            $L = \{ a_1 a_2 \dots a_n a_n \dots a_2 a_1 \ |\  a_i \in \{ 0, 1 \} \}$
+            \bigbreak
+            \textbf{Решение:}
+            \begin{lstlisting}
+                G ({0, 1}, {S, A, B}, P, S)
+                P:
+                    S => 0A | 1B
+                    A => S0 | !$\varepsilon$!
+                    B => S1 | !$\varepsilon$!
+            \end{lstlisting}
+        \end{item}
+    
+    \end{enumerate}
+\end{item}
+
+\end{enumerate}
+
+%--------------------------------------------------------------------------------
+
+\end{document}
