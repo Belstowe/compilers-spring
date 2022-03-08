@@ -8,6 +8,7 @@
 \usepackage{listings}
 \usepackage{pxfonts}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \usepackage[margin=1mm]{geometry}
 \usepackage[bottomtitles]{titlesec}
@@ -258,7 +259,7 @@
 
                 \begin{item}
                     \begin{lstlisting}
-                        (?<={)((((-|\+)?(0|[1-9][0-9]*)|.[0-9]+|(-|\+)?(0|[1-9][0-9]*).[0-9]+)((e|E)(-|\+)?[0-9]+)?(f|F|l|L)?)((?=})|;))+(?=})
+                        (?<={)((((-|\+)?(0|[1-9][0-9]*)|\.[0-9]+|(-|\+)?(0|[1-9][0-9]*)\.[0-9]+)((e|E)(-|\+)?[0-9]+)?(f|F|l|L)?)((?=})|;))+(?=})
                     \end{lstlisting}
                 \end{item}
 
@@ -286,6 +287,10 @@
 
     \end{enumerate}
 
+\end{item}
+
+\begin{item}
+    Для регулярных выражений из предыдущего задания постройте конечные автоматы. Изобразите их в виде графа.
 \end{item}
 
 \end{enumerate}
