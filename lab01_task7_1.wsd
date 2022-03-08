@@ -1,0 +1,41 @@
+@startuml Lab01_Task7_Schema1
+
+start
+
+partition Array {
+	:==**Positive Lookbehind**==
+                 `{`;
+		partition ArrayElement {
+			repeat
+                partition ID {
+                    split
+                        partition LetterStart {
+                            :==**One of**==\n 'A' - 'Z'\n 'a' - 'z';
+                            split
+                                while (==**One of**==\n 'A' - 'Z'\n 'a' - 'z'\n '0' - '9')
+                                endwhile
+                            split again
+                            end split
+                        }
+                            
+                    split again
+                        partition UnderscoreStart {
+                            :'_';
+
+                            while (==**One of**==\n 'A' - 'Z'\n 'a' - 'z'\n '0' - '9')
+                            endwhile
+                        }
+                            
+                    end split
+                }
+			repeat while (Lookahead) is (';')
+			->'}';
+		}
+	:==**Positive Lookahead**==
+                `}`;
+
+}
+
+stop
+
+@enduml

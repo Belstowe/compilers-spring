@@ -1,0 +1,300 @@
+\documentclass[]{article}
+\usepackage[default]{opensans}
+\usepackage[utf8]{inputenc}
+\usepackage[T1,T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{pxfonts}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\usepackage[margin=1mm]{geometry}
+\usepackage[bottomtitles]{titlesec}
+\widowpenalty=0\relax
+\clubpenalty=0\relax
+\pagestyle{empty}
+
+\lstset{basicstyle=\rmfamily,
+        breaklines=true,
+        escapechar=!,
+        columns=fullflexible,
+        mathescape=true,
+        literate=
+               {=>}{$\Rightarrow{}$}{1}}
+
+\begin{document}
+
+%--------------------------------------------------------------------------------
+\section{Формальные языки, грамматики и их свойства}
+
+\begin{enumerate}
+
+\begin{item}
+    Дана грамматика. Постройте вывод заданной цепочки.
+    \begin{enumerate}
+    
+    \begin{item}
+        \begin{lstlisting}
+            S => T | T '+' S | T '-' S;
+            T => F | F '*' T;
+            F => 'a' | 'b';
+        \end{lstlisting}
+        Цепочка: \lstinline|a - b * a + b|.
+        \bigbreak
+        \textbf{Решение:}
+        \begin{lstlisting}
+            !\textcolor{red}{S}! => !\textcolor{red}{T}! - S => F - !\textcolor{red}{S}! => !\textcolor{red}{F}! - T + S =>
+                a - !\textcolor{red}{T}! + S => a - F * T + !\textcolor{red}{S}! => 
+                    => a - !\textcolor{red}{F}! * !\textcolor{red}{T}! + !\textcolor{red}{T}! => a - b * !\textcolor{red}{F}! + !\textcolor{red}{F}! =>
+                            => a - b * a + b
+        \end{lstlisting}
+    \end{item}
+    
+    \begin{item}
+        \begin{lstlisting}
+            S => 'a' S B C | 'ab' C;
+            C B => B C;
+            'b' B => 'bb';
+            'b' C => 'bc';
+            'c' C => 'cc';
+        \end{lstlisting}
+        Цепочка: \lstinline|aaabbbccc|.
+        \bigbreak
+        \textbf{Решение:}
+        \begin{lstlisting}
+            !\textcolor{red}{S}! => a !\textcolor{red}{S}! B C => aa !\textcolor{red}{S}! B C B C => aaab !\textcolor{red}{C B}! C B C
+                => aaa!\textcolor{red}{b B}! C C B C => aaabb C !\textcolor{red}{C B}! C =>
+                    => aaabb !\textcolor{red}{C B}! C C => aaab!\textcolor{red}{b B}! C C C =>
+                        => aaabb!\textcolor{red}{b C}! C C => aaabbb!\textcolor{red}{c C}! C =>
+                            => aaabbbc!\textcolor{red}{c C}! => aaabbbccc
+        \end{lstlisting}
+    \end{item}
+    
+    \end{enumerate}
+\end{item}
+
+\begin{item}
+    Построить грамматику, порождающую язык:
+    \begin{enumerate}
+    
+        \begin{item}
+            $L = \{ a^n b^m c^k\ |\  n, m, k > 0 \}$
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{lstlisting}
+                G ({a, b, c}, {S, A, B, C}, P, S);
+                P:
+                    S => 'a' A;
+                    A => 'a' A | B;
+                    B => 'b' B | 'b' C;
+                    C => 'c' C | 'c';
+            \end{lstlisting}
+        \end{item}
+
+        \begin{item}
+            $L = \{ 0^n (10)^m \ |\  n, m >= 0 \}$
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{lstlisting}
+                G ({0, 1}, {S, A, B}, P, S);
+                P:
+                    S => '0' S | '1' A | !$\varepsilon$!;
+                    A => '0' B | 0;
+                    B => '1' A;
+            \end{lstlisting}
+        \end{item}
+
+        \begin{item}
+            $L = \{ a_1 a_2 \dots a_n a_n \dots a_2 a_1 \ |\  a_i \in \{ 0, 1 \} \}$
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{lstlisting}
+                G ({0, 1}, {S, A, B}, P, S);
+                P:
+                    S => '0' A | '1' B;
+                    A => S '0' | !$\varepsilon$!;
+                    B => S '1' | !$\varepsilon$!;
+            \end{lstlisting}
+        \end{item}
+    
+    \end{enumerate}
+\end{item}
+
+\begin{item}
+    К какому типу по Хомскому относится грамматика с приведенными правилами? Аргументируйте ответ.
+    \begin{enumerate}
+        
+        \begin{item}
+            \begin{lstlisting}
+                S => '0' A '1' | '01';
+                '0' A => '00' A '1';
+                A => '01';
+            \end{lstlisting}
+            \bigbreak
+            \textbf{Решение:}
+            \smallbreak
+            КЗ грамматика:
+            \hfill\break В левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
+            \smallbreak
+            КС грамматика:
+            \hfill\break \lstinline|'0' A => '00' A '1'|: В левой части присутствуют терминальные символы.
+            \bigbreak
+            \textbf{Ответ:}
+            Контекстно-зависимая грамматика (1 тип).
+        \end{item}
+
+        \begin{item}
+            \begin{lstlisting}
+                S => A 'b';
+                A => A 'a' | 'ba';
+            \end{lstlisting}
+            \bigbreak
+            \textbf{Решение:}
+            \smallbreak
+            КЗ грамматика:
+            \hfill\breakВ левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
+            \smallbreak
+            КС грамматика:
+            \hfill\breakВ левых частях выражений отсутствуют терминалы $\Rightarrow$ грамматика соответствует 2 типу.
+            \smallbreak
+            Регулярная грамматика:
+            \hfill\breakЯвляется \emph{леволинейной} грамматикой, т.к. нетерминалы в правой части всегда следуют перед терминалами.
+            \bigbreak
+            \textbf{Ответ:}
+            Регулярная грамматика (3 тип).
+        \end{item}
+
+    \end{enumerate}
+\end{item}
+
+\begin{item}
+    Построить КС-грамматику, эквивалентную грамматике с правилами:
+    \begin{lstlisting}
+        S => A B | A B S;
+        A B => B A;
+        B A => A B;
+        A => 'a';
+        B => 'b';
+    \end{lstlisting}
+
+    \textbf{Решение:}
+    \smallbreak
+    $L \ni \{ ab; ba; abab; abba; baab; baba; \dots \};$
+    \hfill\break$L = \{ a_1 a_2 \dots a_n \ |\  a_i \in \{ ab, ba \} \};$
+    \bigbreak
+    \textbf{Ответ:}
+    \begin{lstlisting}
+        G ({ab, ba}, {S, A}, P, S);
+        P:
+            S => A | A S;
+            A => 'ab' | 'ba';
+    \end{lstlisting}
+\end{item}
+
+\begin{item}
+    Построить регулярную грамматику, эквивалентную грамматике с правилами:
+    \begin{lstlisting}
+        S => A '.' A;
+        A => B | B A;
+        B => '0' | '1';
+    \end{lstlisting}
+
+    \textbf{Решение:}
+    \smallbreak
+    $L \ni \{ 0.0; 0.1; 1.0; 1.1; 00.0; 0.00; 10.0; 11.0; \dots \};$
+    \hfill\break$L = \{ a_1 a_2 \dots a_n . a_{n+1} a_{n+2} \dots a_{n+m} \ |\  a_i \in \{ 0, 1 \}; n, m > 0 \};$
+    \bigbreak
+    \textbf{Ответ:}
+    \begin{lstlisting}
+        G ({0, 1}, {S, A, B}, P, S);
+        P:
+            S => '0' A | '1' A;
+            A => '0' A | '1' A | '.' B;
+            B => '0' C | '1' C | '0' | '1';
+    \end{lstlisting}
+\end{item}
+
+\begin{item}
+    Напишите регулярное выражение для:
+    \begin{enumerate}
+
+        \begin{item}
+            Множества идентификаторов, где идентификатор – это последовательность букв или цифр, начинающаяся с буквы или \_.
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{enumerate}
+
+                \begin{item}
+                    \begin{lstlisting}
+                        (?<={)((([A-Za-z][A-Za-z0-9]*)|(_[A-Za-z0-9]+))((?=})|;))+(?=})
+                    \end{lstlisting}
+                \end{item}
+
+                \begin{item}
+                    \begin{itemize}
+                        \item \lstinline|{Imposter420} $\Rightarrow$ Imposter420|
+                        \item \lstinline|{_420ImPoster} $\Rightarrow$ _420ImPoster|
+                        \item \lstinline|{__imposter} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{420ImPoster} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{Imp@ster} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{Imposter420;_420ImPoster;coolGuy} $\Rightarrow$ Imposter420;_420ImPoster;coolGuy|
+                        \item \lstinline|{_420ImPoster;__imp@sSt3r} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{_} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|Imposter420 $\Rightarrow$ $\varepsilon$|
+                    \end{itemize}
+                \end{item}
+
+                \item \url{https://regexr.com/6guc4}
+
+            \end{enumerate}
+        \end{item}
+
+        \begin{item}
+            Множества вещественных констант с плавающей точкой, состоящих из целой части, десятичной точки, дробной части, символа е или Е, целого показателя степени с необязательным знаком и необязательного суффикса типа – одной из букв f, F, l или L. Целая и дробная части состоят из последовательностей цифр. Может отсутствовать либо целая, либо дробная часть (но не обе сразу).
+            \bigbreak
+            \textbf{Ответ:}
+            \begin{enumerate}
+
+                \begin{item}
+                    \begin{lstlisting}
+                        (?<={)((((-|\+)?(0|[1-9][0-9]*)|\.[0-9]+|(-|\+)?(0|[1-9][0-9]*)\.[0-9]+)((e|E)(-|\+)?[0-9]+)?(f|F|l|L)?)((?=})|;))+(?=})
+                    \end{lstlisting}
+                \end{item}
+
+                \begin{item}
+                    \begin{itemize}
+                        \item \lstinline|{5;7;-8}; $\Rightarrow$ 5;7;-8|
+                        \item \lstinline|{0} $\Rightarrow$ 0|
+                        \item \lstinline|0 $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{-25.6;.01;2} $\Rightarrow$ -25.6;.01;2|
+                        \item \lstinline|{6;TheLetter;32} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{6e+2;4.6E-1;-3.1e0}; $\Rightarrow$ 6e+2;4.6E-1;-3.1e0|
+                        \item \lstinline|{6e} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{4e+} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{-.5} $\Rightarrow$ $\varepsilon$|
+                        \item \lstinline|{5L;-32l;24.55f;-21F} $\Rightarrow$ 5L;-32l;24.55f;-21F|
+                        \item \lstinline|{-0.216e+6F} $\Rightarrow$ -0.216e+6F|
+                        \item \lstinline|{4e+5.4} $\Rightarrow$ $\varepsilon$|
+                    \end{itemize}
+                \end{item}
+
+                \item \url{https://regexr.com/6gudb}
+
+            \end{enumerate}
+        \end{item}
+
+    \end{enumerate}
+
+\end{item}
+
+\begin{item}
+    Для регулярных выражений из предыдущего задания постройте конечные автоматы. Изобразите их в виде графа.
+\end{item}
+
+\end{enumerate}
+
+%--------------------------------------------------------------------------------
+
+\end{document}
