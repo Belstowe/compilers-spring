@@ -35,9 +35,9 @@
     
     \begin{item}
         \begin{lstlisting}
-            S : T | T '+' S | T '-' S;
-            T : F | F '*' T;
-            F : 'a' | 'b';
+            S => T | T '+' S | T '-' S;
+            T => F | F '*' T;
+            F => 'a' | 'b';
         \end{lstlisting}
         Цепочка: \lstinline|a - b * a + b|.
         \bigbreak
@@ -52,11 +52,11 @@
     
     \begin{item}
         \begin{lstlisting}
-            S : 'a' S B C | 'ab' C;
-            C B : B C;
-            'b' B : 'bb';
-            'b' C : 'bc';
-            'c' C : 'cc';
+            S => 'a' S B C | 'ab' C;
+            C B => B C;
+            'b' B => 'bb';
+            'b' C => 'bc';
+            'c' C => 'cc';
         \end{lstlisting}
         Цепочка: \lstinline|aaabbbccc|.
         \bigbreak
@@ -80,44 +80,113 @@
         \begin{item}
             $L = \{ a^n b^m c^k\ |\  n, m, k > 0 \}$
             \bigbreak
-            \textbf{Решение:}
+            \textbf{Ответ:}
             \begin{lstlisting}
-                G ({a, b, c}, {S, A, B, C}, P, S)
+                G ({a, b, c}, {S, A, B, C}, P, S);
                 P:
-                    S => aA
-                    A => aA | B
-                    B => bB | bC
-                    C => cC | c
+                    S => 'a' A;
+                    A => 'a' A | B;
+                    B => 'b' B | 'b' C;
+                    C => 'c' C | 'c';
             \end{lstlisting}
         \end{item}
 
         \begin{item}
             $L = \{ 0^n (10)^m \ |\  n, m >= 0 \}$
             \bigbreak
-            \textbf{Решение:}
+            \textbf{Ответ:}
             \begin{lstlisting}
-                G ({0, 1}, {S, A, B}, P, S)
+                G ({0, 1}, {S, A, B}, P, S);
                 P:
-                    S => 0S | 1A | !$\varepsilon$!
-                    A => 0B | 0
-                    B => 1A
+                    S => '0' S | '1' A | !$\varepsilon$!;
+                    A => '0' B | 0;
+                    B => '1' A;
             \end{lstlisting}
         \end{item}
 
         \begin{item}
             $L = \{ a_1 a_2 \dots a_n a_n \dots a_2 a_1 \ |\  a_i \in \{ 0, 1 \} \}$
             \bigbreak
-            \textbf{Решение:}
+            \textbf{Ответ:}
             \begin{lstlisting}
-                G ({0, 1}, {S, A, B}, P, S)
+                G ({0, 1}, {S, A, B}, P, S);
                 P:
-                    S => 0A | 1B
-                    A => S0 | !$\varepsilon$!
-                    B => S1 | !$\varepsilon$!
+                    S => '0' A | '1' B;
+                    A => S '0' | !$\varepsilon$!;
+                    B => S '1' | !$\varepsilon$!;
             \end{lstlisting}
         \end{item}
     
     \end{enumerate}
+\end{item}
+
+\begin{item}
+    К какому типу по Хомскому относится грамматика с приведенными правилами? Аргументируйте ответ.
+    \begin{enumerate}
+        
+        \begin{item}
+            \begin{lstlisting}
+                S => '0' A '1' | '01';
+                '0' A => '00' A '1';
+                A => '01';
+            \end{lstlisting}
+            \bigbreak
+            \textbf{Решение:}
+            \smallbreak
+            КЗ грамматика:
+            \hfill\break В левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
+            \smallbreak
+            КС грамматика:
+            \hfill\break \lstinline|'0' A => '00' A '1'|: В левой части присутствуют терминальные символы.
+            \bigbreak
+            \textbf{Ответ:}
+            Контекстно-зависимая грамматика (1 тип).
+        \end{item}
+
+        \begin{item}
+            \begin{lstlisting}
+                S => A 'b';
+                A => A 'a' | 'ba';
+            \end{lstlisting}
+            \bigbreak
+            \textbf{Решение:}
+            \smallbreak
+            КЗ грамматика:
+            \hfill\breakВ левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
+            \smallbreak
+            КС грамматика:
+            \hfill\breakВ левых частях выражений отсутствуют терминалы $\Rightarrow$ грамматика соответствует 2 типу.
+            \smallbreak
+            Регулярная грамматика:
+            \hfill\breakЯвляется \emph{леволинейной} грамматикой, т.к. нетерминалы в правой части всегда следуют перед терминалами.
+            \bigbreak
+            \textbf{Ответ:}
+            Регулярная грамматика (3 тип).
+        \end{item}
+
+    \end{enumerate}
+\end{item}
+
+\begin{item}
+    Построить КС-грамматику, эквивалентную грамматике с правилами:
+    \begin{lstlisting}
+        S => A B | A B S;
+        A B => B A;
+        B A => A B;
+        A => 'a';
+        B => 'b';
+    \end{lstlisting}
+
+    \textbf{Решение:}
+    \smallbreak
+    $L \ni \{ ab; ba; abab; abba; baab; baba; \dots \};$
+    \hfill\break$L = \{ a_1 a_2 \dots a_n \ |\  a_i \in \{ ab, ba \} \};$
+    \bigbreak
+    \textbf{Ответ:}
+    \begin{lstlisting}
+        S => A | A S;
+        A => 'ab' | 'ba';
+    \end{lstlisting}
 \end{item}
 
 \end{enumerate}
