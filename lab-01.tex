@@ -111,11 +111,12 @@
             \bigbreak
             \textbf{Ответ:}
             \begin{lstlisting}
-                G ({0, 1}, {S, A, B}, P, S);
+                G ({0, 1}, {S, A, B, C}, P, S);
                 P:
                     S => '0' A | '1' B;
-                    A => S '0' | !$\varepsilon$!;
-                    B => S '1' | !$\varepsilon$!;
+                    A => C '0';
+                    B => C '1';
+                    C => '0' A | '1' B | !$\varepsilon$!;
             \end{lstlisting}
         \end{item}
     
