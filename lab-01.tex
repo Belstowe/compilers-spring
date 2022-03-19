@@ -182,15 +182,15 @@
 
     \textbf{Решение:}
     \smallbreak
-    $L \ni \{ ab; ba; abab; abba; baab; baba; \dots \};$
+    $L \ni \{ ab; ba; abab; abba; baab; baba; aabb; bbaa; \dots \};$
     \hfill\break$L = \{ a_1 a_2 \dots a_n \ |\  a_i \in \{ ab, ba \} \};$
     \bigbreak
     \textbf{Ответ:}
     \begin{lstlisting}
-        G ({ab, ba}, {S, A}, P, S);
+        G ({a, b}, {S, A}, P, S);
         P:
             S => A | A S;
-            A => 'ab' | 'ba';
+            A => 'aa' | 'ab' | 'ba' | 'bb';
     \end{lstlisting}
 \end{item}
 
