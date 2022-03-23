@@ -45,10 +45,10 @@
         \bigbreak
         \textbf{Решение:}
         \begin{lstlisting}
-            !\textcolor{red}{S}! => !\textcolor{red}{T}! - S => F - !\textcolor{red}{S}! => !\textcolor{red}{F}! - T + S =>
-                a - !\textcolor{red}{T}! + S => a - F * T + !\textcolor{red}{S}! => 
-                    => a - !\textcolor{red}{F}! * !\textcolor{red}{T}! + !\textcolor{red}{T}! => a - b * !\textcolor{red}{F}! + !\textcolor{red}{F}! =>
-                            => a - b * a + b
+            !\textcolor{red}{S}! => !\textcolor{red}{T}! - S => !\textcolor{red}{F}! - S => a - !\textcolor{red}{S}! =>
+                a - !\textcolor{red}{T}! + S => a - !\textcolor{red}{F}! * T + S => a - b * !\textcolor{red}{T}! + S
+                    => a - b * !\textcolor{red}{F}! + S => a - b * a + !\textcolor{red}{S}! => a - b * a + !\textcolor{red}{T}!
+                        => a - b * a + !\textcolor{red}{F}! => a - b * a + b
         \end{lstlisting}
     \end{item}
     
@@ -182,15 +182,15 @@
 
     \textbf{Решение:}
     \smallbreak
-    $L \ni \{ ab; ba; abab; abba; baab; baba; aabb; bbaa; \dots \};$
+    $L \ni \{ ab; ba; abab; abba; baab; baba; \dots \};$
     \hfill\break$L = \{ a_1 a_2 \dots a_n \ |\  a_i \in \{ ab, ba \} \};$
     \bigbreak
     \textbf{Ответ:}
     \begin{lstlisting}
-        G ({a, b}, {S, A}, P, S);
+        G ({ab, ba}, {S, A}, P, S);
         P:
             S => A | A S;
-            A => 'aa' | 'ab' | 'ba' | 'bb';
+            A => 'ab' | 'ba';
     \end{lstlisting}
 \end{item}
 
