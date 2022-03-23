@@ -131,6 +131,9 @@
             \bigbreak
             \textbf{Решение:}
             \smallbreak
+            Фразовая грамматика:
+            \hfill\break По умолчанию.
+            \smallbreak
             КЗ грамматика:
             \hfill\break В левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
             \smallbreak
@@ -148,6 +151,9 @@
             \end{lstlisting}
             \bigbreak
             \textbf{Решение:}
+            \smallbreak
+            Фразовая грамматика:
+            \hfill\break По умолчанию.
             \smallbreak
             КЗ грамматика:
             \hfill\breakВ левой и правой частях выражений не более 1 нетерминала $\Rightarrow$ грамматика соответствует 1 типу.
@@ -177,15 +183,13 @@
 
     \textbf{Решение:}
     \smallbreak
-    $L \ni \{ ab; ba; abab; abba; baab; baba; \dots \};$
-    \hfill\break$L = \{ a_1 a_2 \dots a_n \ |\  a_i \in \{ ab, ba \} \};$
+    $L \ni \{ ab; ba; abab; abba; baab; baba; aabb; bbaa; \dots \};$
     \bigbreak
     \textbf{Ответ:}
     \begin{lstlisting}
-        G ({ab, ba}, {S, A}, P, S);
+        G ({a, b}, {S}, P, S);
         P:
-            S => A | A S;
-            A => 'ab' | 'ba';
+            S => 'ab' | 'ba' | 'ab' S | 'ba' S | 'a' S 'b' | 'b' S 'a';
     \end{lstlisting}
 \end{item}
 
