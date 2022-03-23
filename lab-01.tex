@@ -84,12 +84,11 @@
             \bigbreak
             \textbf{Ответ:}
             \begin{lstlisting}
-                G ({a, b, c}, {S, A, B, C}, P, S);
+                G ({a, b, c}, {S, A, B}, P, S);
                 P:
-                    S => 'a' A;
-                    A => 'a' A | B;
-                    B => 'b' B | 'b' C;
-                    C => 'c' C | 'c';
+                    S => 'a' S | 'a' A;
+                    A => 'b' A | 'b' B;
+                    B => 'c' B | 'c';
             \end{lstlisting}
         \end{item}
 
@@ -98,11 +97,10 @@
             \bigbreak
             \textbf{Ответ:}
             \begin{lstlisting}
-                G ({0, 1}, {S, A, B}, P, S);
+                G ({0, 1}, {S, A}, P, S);
                 P:
-                    S => '0' S | '1' A | !$\varepsilon$!;
-                    A => '0' B | 0;
-                    B => '1' A;
+                    S => '0' S | A;
+                    A => '10' A | !$\varepsilon$!;
             \end{lstlisting}
         \end{item}
 
@@ -111,12 +109,9 @@
             \bigbreak
             \textbf{Ответ:}
             \begin{lstlisting}
-                G ({0, 1}, {S, A, B, C}, P, S);
+                G ({0, 1}, {S}, P, S);
                 P:
-                    S => '0' A | '1' B;
-                    A => C '0';
-                    B => C '1';
-                    C => '0' A | '1' B | !$\varepsilon$!;
+                    S => '0' S '0' | '1' S '1' | '11' | '00';
             \end{lstlisting}
         \end{item}
     
