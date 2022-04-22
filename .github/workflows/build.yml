@@ -25,3 +25,9 @@ jobs:
 
       - name: 'Install ANTLR4 and make Go runtime'
         run: bash ./scripts/build.sh
+
+      - name: 'Build Rust parser'
+        run: go build ./cmd/rust-parser/main.go
+
+      - name: 'Test parser'
+        run: go test ./test/...

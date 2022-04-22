@@ -8,3 +8,23 @@
 
 * **Парсер для языка:** Rust *(вариант 14)*.
 * **Язык рантайма:** Go.
+
+## Сборка и запуск
+
+Для проекта необходимо установить компилятор **[Go](https://go.dev/dl/)**.
+
+1. Установка ANTLR4 Go Runtime *(пакет с ANTLR4 закачивается автоматически)*:
+```
+Unix    $ ./scripts/build.sh
+Windows > .\scripts\build.bat
+```
+
+2. Сборка лексера Rust:
+```sh
+$ go build ./cmd/rust-parser/main.go
+```
+
+3. Тестирование лексера Rust:
+```sh
+$ go test ./test/...
+```
