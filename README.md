@@ -21,7 +21,7 @@ Windows > .\scripts\build.bat
 
 2. Сборка лексера Rust:
 ```sh
-$ go build ./cmd/rust-parser/main.go
+$ go build ./cmd/rust-parser/rust-parser.go
 ```
 
 3. Тестирование лексера Rust:
