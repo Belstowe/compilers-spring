@@ -28,3 +28,23 @@ $ go build ./cmd/rust-parser/rust-parser.go
 ```sh
 $ go test ./test/...
 ```
+
+Чтобы получить инструкцию по компилятору, пропишите флаг `-h`/`--help`:
+```sh
+$ rust-parser --help
+```
+```sh
+NAME:
+   rust-parser - A simple Rust compiler using ANTLR
+
+USAGE:
+   rust-parser [global options] command [command options] [arguments...]
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --input value, -i value  Path to Rust code file for parsing (default: read from terminal)
+   --dump-tokens            Require lexer to dump tokens in stdout (default: false)
+   --help, -h               show help (default: false)
+```
