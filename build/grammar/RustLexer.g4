@@ -18,6 +18,7 @@ KW_STRUCT:      'struct';
 KW_SUPER:       'super';
 KW_TRUE:        'true';
 KW_TYPE:        'type';
+KW_USE:         'use';
 KW_WHERE:       'where';
 KW_WHILE:       'while';
 
@@ -75,10 +76,13 @@ OREQ: '|=';
 SHLEQ: '<<=';
 SHREQ: '>>=';
 
+UNDERSCORE: '_';
+DOT: '.';
 AT: '@';
 COMMA: ',';
 SEMI: ';';
 COLON: ':';
+PATHSEP: '::';
 RARROW: '->';
 POUND: '#';
 DOLLAR: '$';

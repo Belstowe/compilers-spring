@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
-	"github.com/Compiler2022/compilers-1-Belstowe/pkg/input"
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust"
 	"github.com/urfave/cli/v2"
 )
@@ -33,13 +34,17 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			var code string
+			var code io.Reader
 
 			if input_path == "" {
 				fmt.Println("Input Rust code (press Ctrl+D (Unix) or Ctrl+Z (Win) to interrupt):")
-				code = input.ReadStdinUntilInterrupt()
+				code = bufio.NewReader(os.Stdin)
 			} else {
-				code = input.ReadFile(input_path)
+				var err error
+				code, err = os.Open(input_path)
+				if err != nil {
+					panic(err)
+				}
 			}
 
 			if to_dump_tokens {

@@ -2,7 +2,7 @@ package librust
 
 import (
 	"fmt"
-	"os"
+	"io"
 
 	"github.com/Compiler2022/compilers-1-Belstowe/parser"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
@@ -18,12 +18,17 @@ func (g *TokenVocabulary) LLVMFormat(token *antlr.Token) string {
 		(*token).GetText())
 }
 
-func DumpTokens(in string, out *os.File) {
-	input := antlr.NewInputStream(in)
+func DumpTokens(in io.Reader, out io.Writer) {
+	b, err := io.ReadAll(in)
+	if err != nil {
+		panic(err)
+	}
+
+	input := antlr.NewInputStream(string(b))
 	lexer := parser.NewRustLexer(input)
 	var vocabulary TokenVocabulary = lexer.GetSymbolicNames()
 	for _, token := range lexer.GetAllTokens() {
-		_, err := out.WriteString(vocabulary.LLVMFormat(&token))
+		_, err := out.Write([]byte(vocabulary.LLVMFormat(&token)))
 		if err != nil {
 			panic(err)
 		}
