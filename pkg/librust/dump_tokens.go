@@ -23,6 +23,9 @@ func DumpTokens(in string, out *os.File) {
 	lexer := parser.NewRustLexer(input)
 	var vocabulary TokenVocabulary = lexer.GetSymbolicNames()
 	for _, token := range lexer.GetAllTokens() {
-		out.WriteString(vocabulary.LLVMFormat(&token))
+		_, err := out.WriteString(vocabulary.LLVMFormat(&token))
+		if err != nil {
+			panic(err)
+		}
 	}
 }
