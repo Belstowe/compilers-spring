@@ -31,3 +31,9 @@ jobs:
 
       - name: 'Test parser'
         run: go test ./test/...
+
+      - name: 'Linting with golangci-lint'
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.45.2
+          only-new-issues: true
