@@ -18,3 +18,6 @@
 
 # ...even if they are in subdirectories
 !*/
+
+# ANTLR generated parser
+parser/

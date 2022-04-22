@@ -9,10 +9,6 @@ on:
       - main
   pull_request:
 
-env:
-  antlr: antlr-4.10.1-complete.jar
-  antlr_ver: 4.10.1
-
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -27,11 +23,5 @@ jobs:
         with:
           go-version: '1.17'
 
-      - name: '[ANTLR4] Install'
-        run: |
-          curl -O https://www.antlr.org/download/$antlr
-
-      - name: '[ANTLR4] Build Go runtime'
-        run: |
-          go get github.com/antlr/antlr4/runtime/Go/antlr@4.10.1
-          java -jar $antlr -Dlanguage=Go build/grammar/RustLexer.g4
+      - name: 'Install ANTLR4 and make Go runtime'
+        run: bash ./scripts/build.sh
