@@ -1,0 +1,20 @@
+# Ignore everything
+*
+
+# But not these files...
+!/.gitignore
+!/.github/**
+!/scripts/**
+!/build/grammar/*.g4
+
+!*.go
+!go.sum
+!go.mod
+
+!README.md
+!LICENSE
+
+# !Makefile
+
+# ...even if they are in subdirectories
+!*/
