@@ -12,4 +12,4 @@ if [ ! -f "$antlr_path" ]; then
 fi
 
 go get -d github.com/antlr/antlr4/runtime/Go/antlr@$antlr_ver
-(cd build/grammar && java -jar $antlr_path -o $output -Dlanguage=Go RustLexer.g4)
+(cd build/grammar && java -jar $antlr_path -o $output -visitor -no-listener -Dlanguage=Go *.g4)
