@@ -19,26 +19,26 @@ Unix    $ ./scripts/build.sh
 Windows > .\scripts\build.bat
 ```
 
-2. Сборка лексера Rust:
+2. Сборка компилятора Rust:
 ```sh
-$ go build ./cmd/rust-parser/rust-parser.go
+$ go build ./cmd/ruster/ruster.go
 ```
 
-3. Тестирование лексера Rust:
+3. Тестирование компилятора Rust:
 ```sh
 $ go test ./test/...
 ```
 
 Чтобы получить инструкцию по компилятору, пропишите флаг `-h`/`--help`:
 ```sh
-$ rust-parser --help
+$ ruster --help
 ```
 ```sh
 NAME:
-   rust-parser - A simple Rust compiler using ANTLR
+   ruster - A simple Rust compiler using ANTLR
 
 USAGE:
-   rust-parser [global options] command [command options] [arguments...]
+   ruster [global options] command [command options] [arguments...]
 
 COMMANDS:
    help, h  Shows a list of commands or help for one command

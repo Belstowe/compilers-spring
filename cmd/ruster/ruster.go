@@ -16,7 +16,7 @@ func main() {
 	var to_dump_tokens bool
 
 	app := &cli.App{
-		Name:  "rust-parser",
+		Name:  "ruster",
 		Usage: "A simple Rust compiler using ANTLR",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
