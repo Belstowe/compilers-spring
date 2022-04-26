@@ -37,7 +37,7 @@ CHAR_LITERAL : '\'' ( ~['\\\n\r\t] | '\\' ['nrt\\0] ) '\'' ;
 
 STRING_LITERAL : '"' ( ~["] | '\\' ["nrt\\0] )* '"' ;
 
-INTEGER_LITERAL : DEC_LITERAL INTEGER_SUFFIX?;
+INTEGER_LITERAL : '-'? DEC_LITERAL INTEGER_SUFFIX?;
 
 DEC_LITERAL: DEC_DIGIT (DEC_DIGIT | '_')*;
 

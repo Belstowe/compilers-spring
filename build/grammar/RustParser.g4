@@ -16,7 +16,7 @@ item
 
 useDeclaration : 'use' useTree ';' ;
 useTree
-    : (simplePath? '::')? ('*' | '{' ( useTree (',' useTree)* ','?)? '}')
+    : (simplePath? '::')? IncludeAll='*'
     | simplePath ('as' (identifier | '_'))? ;
 
 function
@@ -46,51 +46,46 @@ expressionStatement
 	| expressionWithBlock ';'? ;
 
 expression
-	: literalExpression									    # LiteralExpression_
-	| pathExpression										# PathExpression_
-	| expression '.' simplePathSegment '(' callParams? ')'  # MethodCallExpression
-	| expression '.' identifier								# FieldExpression
-	| expression '(' callParams? ')'						# CallExpression
-	| expression '.' tupleIndex								# TupleIndexingExpression
-	| expression '[' expression ']'							# IndexExpression
-	| expression '?'										# ErrorPropagationExpression
-	| ('&' | '&&') 'mut'? expression						# BorrowExpression
-	| '*' expression										# DereferenceExpression
-	| ('-' | '!') expression								# NegationExpression
-	| expression 'as' type									# TypeCastExpression
-	| expression ('*' | '/' | '%' | '+' | '-') expression   # ArithmeticExpression
-	| expression ('<<' | '>>') expression					# ArithmeticOrLogicalExpression
-	| expression ('&' | '^' | '|') expression				# ArithmeticOrLogicalExpression
-	| expression comparisonOperator expression				# ComparisonExpression
-	| expression ('&&' | '||') expression					# BooleanExpression
-	| expression '..' expression?							# RangeExpression
-	| expression '..=' expression							# RangeExpression
-	| '..' expression?										# RangeExpression
-	| '..=' expression										# RangeExpression
-	| expression '=' expression								# AssignmentExpression
-	| expression compoundAssignOperator expression			# CompoundAssignmentExpression 
-	| 'continue' expression?								# ContinueExpression
-	| 'break' expression?									# BreakExpression
-	| 'return' expression?									# ReturnExpression
-	| '(' expression ')'									# GroupedExpression
-	| '[' arrayElements? ']'								# ArrayExpression
-	| '(' tupleElements? ')'								# TupleExpression
-	| structExpression										# StructExpression_
-	| expressionWithBlock									# ExpressionWithBlock_
+	: literalExpression									                        # LiteralExpression_
+	| pathExpression										                    # PathExpression_
+	| expression '.' simplePathSegment '(' callParams? ')'                      # MethodCallExpression
+	| expression '.' identifier								                    # FieldExpression
+	| expression '(' callParams? ')'						                    # CallExpression
+	| expression '.' tupleIndex								                    # TupleIndexingExpression
+	| expression '[' expression ']'							                    # IndexExpression
+	| expression '?'                                                            # ErrorPropagationExpression
+	| RefToken=('&' | '&&') MutToken='mut'? expression                          # BorrowExpression
+	| '*' expression										                    # DereferenceExpression
+	| Op=('-' | '!') Val=expression								                # UnaryOpExpression
+	| expression 'as' type									                    # TypeCastExpression
+	| LHS=expression Op=('*' | '/' | '%' | '+' | '-') RHS=expression            # BinaryOpExpression
+	| LHS=expression Op=('<<' | '>>') RHS=expression					        # BinaryOpExpression
+	| LHS=expression Op=('&' | '^' | '|') RHS=expression				        # BinaryOpExpression
+	| LHS=expression Op=('==' | '!=' | '>' | '<' | '>=' | '<=') RHS=expression	# BinaryOpExpression
+	| LHS=expression Op=('&&' | '||') RHS=expression					        # BinaryOpExpression
+	| LHS=expression Op=('..' | '..=') RHS=expression?					        # RangeExpression
+	| Op=('..' | '..=') Val=expression?								            # RHSRangeExpression
+	| LHS=expression '=' RHS=expression							                # AssignmentExpression
+	| LHS=expression compoundAssignOperator RHS=expression			            # CompoundAssignmentExpression
+	| 'continue' expression?								                    # ContinueExpression
+	| 'break' expression?									                    # BreakExpression
+	| 'return' expression?									                    # ReturnExpression
+	| '(' expression ')'									                    # NestedExpression
+	| '[' arrayElements? ']'								                    # ArrayExpression
+	| '(' tupleElements? ')'								                    # TupleExpression
+	| structExpression										                    # StructExpression_
+	| expressionWithBlock									                    # ExpressionWithBlock_
 	;
-
-comparisonOperator
-	: '==' | '!=' | '>' | '<' | '>=' | '<=' ;
 
 compoundAssignOperator
 	: '+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' | '<<=' | '>>=' ;
 
 literalExpression
-	: CHAR_LITERAL
+	: Literal=(CHAR_LITERAL
 	| STRING_LITERAL
 	| INTEGER_LITERAL
 	| KW_TRUE
-	| KW_FALSE ;
+	| KW_FALSE) ;
 
 blockExpression : '{' statements? '}' ;
 statements
@@ -120,7 +115,7 @@ expressionWithBlock
 ifExpression
    : 'if' expression blockExpression
    (
-      'else' (blockExpression | ifExpression )
+      'else' (blockExpression | ifExpression)
    )? ;
 
 matchExpression : 'match' expression '{' matchArms? '}' ;
@@ -158,11 +153,11 @@ nonRangePattern
     | rangePattern ;
 
 literalPattern
-	: KW_TRUE
+	: Literal=(KW_TRUE
 	| KW_FALSE
 	| CHAR_LITERAL
 	| STRING_LITERAL
-	| '-'? INTEGER_LITERAL ;
+	| INTEGER_LITERAL) ;
 
 identifierPattern
 	: 'ref'? 'mut'? identifier ;
@@ -202,7 +197,7 @@ rangePatternBound
    | pathExpression ;
 
 type
-	: parenthesizedType
+	: nestedType
 	| typePath
 	| tupleType
 	| neverType
@@ -213,7 +208,7 @@ type
 	| inferredType
 	| functionType ;
 
-parenthesizedType : '(' type ')' ;
+nestedType : '(' type ')' ;
 
 neverType : '!' ;
 inferredType : '_' ;
@@ -229,7 +224,7 @@ functionType: 'fn' '(' functionParameters? ')' functionReturnType? ;
 
 typePath : '::'? typePathSegment ('::' typePathSegment)* ;
 typePathSegment : simplePathSegment '::'? typePathFn? ;
-typePathFn : '(' typePathInputs? ')' ('->' type)? ;
+typePathFn : '(' typePathInputs? ')' ('->' ReturnType=type)? ;
 typePathInputs : type (',' type)* ','? ;
 
 simplePath : '::'? simplePathSegment ('::' simplePathSegment)* ;
