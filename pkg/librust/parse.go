@@ -74,7 +74,10 @@ func Parse(in io.Reader, out io.Writer) {
 
 func DumpErrors(errors []Error, out io.Writer) {
 	for _, e := range errors {
-		out.Write([]byte(e.Format()))
+		_, err := out.Write([]byte(e.Format()))
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
