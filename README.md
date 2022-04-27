@@ -13,7 +13,7 @@
 
 Для проекта необходимо установить компилятор **[Go](https://go.dev/dl/)**.
 
-1. Установка ANTLR4 Go Runtime *(пакет с ANTLR4 закачивается автоматически)*:
+1. Установка ANTLR4 Go Runtime *(пакет с поддерживаемой версией ANTLR4 закачивается автоматически)*:
 ```
 Unix    $ ./scripts/build.sh
 Windows > .\scripts\build.bat
@@ -46,5 +46,6 @@ COMMANDS:
 GLOBAL OPTIONS:
    --input value, -i value  Path to Rust code file for parsing (default: read from terminal)
    --dump-tokens            Require lexer to dump tokens in stdout (default: false)
+   --dump-ast               Require parser to dump AST in stdout (default: false)
    --help, -h               show help (default: false)
 ```
