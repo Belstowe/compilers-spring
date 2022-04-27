@@ -92,7 +92,7 @@ func (p *Parameter) Accept(v RusterBaseVisitor) {
 
 type LetStatement struct {
 	Ptrn    Pattern    `yaml:"assignee"`
-	VarType Type       `yaml:"type,attr,omitempty"`
+	VarType Type       `yaml:"type,omitempty"`
 	Expr    Expression `yaml:"expression"`
 }
 

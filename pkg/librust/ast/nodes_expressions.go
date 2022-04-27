@@ -136,8 +136,9 @@ func (ce *CallExpression) Accept(v RusterBaseVisitor) {
 }
 
 type MethodCallExpression struct {
-	*CallExpression
-	Method string
+	FnHeader Expression `yaml:"Function,flow"`
+	Params   CallParams
+	Method   string
 }
 
 func (mce *MethodCallExpression) Accept(v RusterBaseVisitor) {

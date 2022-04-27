@@ -216,7 +216,11 @@ func (v *ANTLRRusterVisitor) VisitAssignmentExpression(ctx *parser.AssignmentExp
 
 func (v *ANTLRRusterVisitor) VisitMethodCallExpression(ctx *parser.MethodCallExpressionContext) interface{} {
 	var expr MethodCallExpression
-	expr.Params = v.Visit(ctx.CallParams()).([]Terminal)
+	if ctx.CallParams() != nil {
+		expr.Params = v.Visit(ctx.CallParams()).([]Terminal)
+	} else {
+		expr.Params = nil
+	}
 	expr.FnHeader = Wrap(v.Visit(ctx.Expression()).(Expression))
 	expr.Method = v.Visit(ctx.SimplePathSegment()).(string)
 	return expr
@@ -236,7 +240,11 @@ func (v *ANTLRRusterVisitor) VisitTupleIndexingExpression(ctx *parser.TupleIndex
 
 func (v *ANTLRRusterVisitor) VisitCallExpression(ctx *parser.CallExpressionContext) interface{} {
 	var expr CallExpression
-	expr.Params = v.Visit(ctx.CallParams()).([]Terminal)
+	if ctx.CallParams() != nil {
+		expr.Params = v.Visit(ctx.CallParams()).([]Terminal)
+	} else {
+		expr.Params = nil
+	}
 	expr.FnHeader = Wrap(v.Visit(ctx.Expression()).(Expression))
 	return expr
 }
@@ -378,7 +386,17 @@ func (v *ANTLRRusterVisitor) VisitPathExpression(ctx *parser.PathExpressionConte
 }
 
 func (v *ANTLRRusterVisitor) VisitIfExpression(ctx *parser.IfExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
+	var expr IfExpression
+	expr.Expr = Wrap(v.Visit(ctx.Cond).(Expression))
+	expr.IfTrue = v.Visit(ctx.IfBody).(BlockExpression)
+	if ctx.ElseIf != nil {
+		expr.IfFalse = Wrap(v.Visit(ctx.Cond).(IfExpression))
+	} else if ctx.ElseBody != nil {
+		expr.IfFalse = v.Visit(ctx.Cond).(BlockExpression)
+	} else {
+		expr.IfFalse = nil
+	}
+	return expr
 }
 
 func (v *ANTLRRusterVisitor) VisitMatchExpression(ctx *parser.MatchExpressionContext) interface{} {
@@ -552,7 +570,7 @@ func (v *ANTLRRusterVisitor) VisitTypePathSegment(ctx *parser.TypePathSegmentCon
 	if ctx.TypePathFn() == nil {
 		segment.Fn = nil
 	} else {
-		segment.Fn = v.Visit(ctx.TypePathFn()).(*TypePathFunction)
+		segment.Fn = v.Visit(ctx.TypePathFn()).(TypePathFunction)
 	}
 	return segment
 }

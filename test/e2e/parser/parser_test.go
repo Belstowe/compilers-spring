@@ -11,7 +11,9 @@ import (
 
 func TestCorrectCode(t *testing.T) {
 	examples := []string{
+		"../../../examples/find_substr.rs",
 		"../../../examples/gcd.rs",
+		"../../../examples/min.rs",
 	}
 
 	for _, example_path := range examples {

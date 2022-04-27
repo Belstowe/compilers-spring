@@ -113,9 +113,9 @@ expressionWithBlock
 	| matchExpression ;
 
 ifExpression
-   : 'if' expression blockExpression
+   : 'if' Cond=expression IfBody=blockExpression
    (
-      'else' (blockExpression | ifExpression)
+      'else' (ElseBody=blockExpression | ElseIf=ifExpression)
    )? ;
 
 matchExpression : 'match' expression '{' matchArms? '}' ;
