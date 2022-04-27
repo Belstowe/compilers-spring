@@ -1,11 +1,10 @@
 package ast
 
-type CallParams []Expression
+type CallParams []Terminal
 
 type LiteralExpression struct {
-	Expression
-	Tp  Literal
-	Val string
+	Tp  Literal `yaml:"Type"`
+	Val string  `yaml:"Value"`
 }
 
 func (le *LiteralExpression) Accept(v RusterBaseVisitor) {
@@ -13,7 +12,6 @@ func (le *LiteralExpression) Accept(v RusterBaseVisitor) {
 }
 
 type PathExpression struct {
-	Expression
 	Segments PathSegments
 }
 
@@ -22,10 +20,9 @@ func (pe *PathExpression) Accept(v RusterBaseVisitor) {
 }
 
 type IfExpression struct {
-	ExpressionWithBlock
-	Expr    Expression
-	IfTrue  BlockExpression
-	IfFalse Node
+	Expr    Expression      `yaml:"If"`
+	IfTrue  BlockExpression `yaml:"Do"`
+	IfFalse Node            `yaml:"Else,omitempty"`
 }
 
 func (ie *IfExpression) Accept(v RusterBaseVisitor) {
@@ -33,7 +30,6 @@ func (ie *IfExpression) Accept(v RusterBaseVisitor) {
 }
 
 type MatchExpression struct {
-	ExpressionWithBlock
 	Expr  Expression
 	Cases []MatchArm
 }
@@ -43,7 +39,6 @@ func (me *MatchExpression) Accept(v RusterBaseVisitor) {
 }
 
 type MatchArm struct {
-	Node
 	Patterns []Pattern
 	Body     BlockExpression
 }
@@ -53,8 +48,7 @@ func (ma *MatchArm) Accept(v RusterBaseVisitor) {
 }
 
 type InfiniteLoopExpression struct {
-	ExpressionWithBlock
-	Body BlockExpression
+	Body BlockExpression `yaml:"Do"`
 }
 
 func (ile *InfiniteLoopExpression) Accept(v RusterBaseVisitor) {
@@ -62,9 +56,8 @@ func (ile *InfiniteLoopExpression) Accept(v RusterBaseVisitor) {
 }
 
 type PredicateLoopExpression struct {
-	ExpressionWithBlock
-	Expr Expression
-	Body BlockExpression
+	Expr Expression      `yaml:"While"`
+	Body BlockExpression `yaml:"Do"`
 }
 
 func (ple *PredicateLoopExpression) Accept(v RusterBaseVisitor) {
@@ -72,10 +65,9 @@ func (ple *PredicateLoopExpression) Accept(v RusterBaseVisitor) {
 }
 
 type IteratorLoopExpression struct {
-	ExpressionWithBlock
-	Ptrn Pattern
-	Expr Expression
-	Body BlockExpression
+	Ptrn Pattern         `yaml:"For"`
+	Expr Expression      `yaml:"In"`
+	Body BlockExpression `yaml:"Do"`
 }
 
 func (ile *IteratorLoopExpression) Accept(v RusterBaseVisitor) {
@@ -83,7 +75,6 @@ func (ile *IteratorLoopExpression) Accept(v RusterBaseVisitor) {
 }
 
 type UnaryOperator struct {
-	Expression
 	Op  string
 	Val Expression
 }
@@ -93,10 +84,9 @@ func (uo *UnaryOperator) Accept(v RusterBaseVisitor) {
 }
 
 type BinaryOperator struct {
-	Expression
-	Op  string
-	LHS Expression
-	RHS Expression
+	Op  string     `yaml:"Operand"`
+	LHS Expression `yaml:",flow"`
+	RHS Expression `yaml:",flow"`
 }
 
 func (bo *BinaryOperator) Accept(v RusterBaseVisitor) {
@@ -104,8 +94,7 @@ func (bo *BinaryOperator) Accept(v RusterBaseVisitor) {
 }
 
 type ReturnExpression struct {
-	Expression
-	Expr Expression
+	Expr Expression `yaml:"return,flow,omitempty"`
 }
 
 func (re *ReturnExpression) Accept(v RusterBaseVisitor) {
@@ -113,8 +102,7 @@ func (re *ReturnExpression) Accept(v RusterBaseVisitor) {
 }
 
 type ContinueExpression struct {
-	Expression
-	Expr Expression
+	Expr Expression `yaml:"continue,flow,omitempty"`
 }
 
 func (ce *ContinueExpression) Accept(v RusterBaseVisitor) {
@@ -122,8 +110,7 @@ func (ce *ContinueExpression) Accept(v RusterBaseVisitor) {
 }
 
 type BreakExpression struct {
-	Expression
-	Expr Expression
+	Expr Expression `yaml:"break,flow,omitempty"`
 }
 
 func (be *BreakExpression) Accept(v RusterBaseVisitor) {
@@ -131,7 +118,6 @@ func (be *BreakExpression) Accept(v RusterBaseVisitor) {
 }
 
 type TypeCastExpression struct {
-	Expression
 	Expr Expression
 	Tp   Type
 }
@@ -141,8 +127,7 @@ func (tce *TypeCastExpression) Accept(v RusterBaseVisitor) {
 }
 
 type CallExpression struct {
-	Expression
-	FnHeader Expression
+	FnHeader Expression `yaml:"Function,flow"`
 	Params   CallParams
 }
 
@@ -151,7 +136,6 @@ func (ce *CallExpression) Accept(v RusterBaseVisitor) {
 }
 
 type MethodCallExpression struct {
-	Expression
 	*CallExpression
 	Method string
 }
@@ -161,10 +145,9 @@ func (mce *MethodCallExpression) Accept(v RusterBaseVisitor) {
 }
 
 type BorrowExpression struct {
-	Expression
-	IsMut       bool
-	IsDoubleRef bool
-	Expr        Expression
+	IsMut       bool       `yaml:"IsMut,omitempty"`
+	IsDoubleRef bool       `yaml:"IsDoubleRef,omitempty"`
+	Expr        Expression `yaml:"Expression,flow"`
 }
 
 func (be *BorrowExpression) Accept(v RusterBaseVisitor) {

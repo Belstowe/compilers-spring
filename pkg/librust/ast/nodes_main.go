@@ -1,8 +1,12 @@
 package ast
 
-type Node interface {
-	Accept(v RusterBaseVisitor)
-}
+import (
+	"reflect"
+
+	"github.com/iancoleman/strcase"
+)
+
+type Node interface{}
 type Statement Node
 type Expression Statement
 type ExpressionWithBlock Expression
@@ -13,6 +17,21 @@ type NonRangePattern Pattern
 
 type Literal string
 type PathSegments []string
+type SimplePath []string
+
+type Terminal struct {
+	n interface{}
+}
+
+func (t Terminal) MarshalYAML() (interface{}, error) {
+	m := make(map[string]interface{})
+	m[strcase.ToCamel(reflect.TypeOf(t.n).String())] = t.n
+	return m, nil
+}
+
+func Wrap(n interface{}) Terminal {
+	return Terminal{n: n}
+}
 
 const (
 	String  Literal = "str"
@@ -22,7 +41,6 @@ const (
 )
 
 type Crate struct {
-	Node
 	Items []Item
 }
 
@@ -31,9 +49,8 @@ func (c *Crate) Accept(v RusterBaseVisitor) {
 }
 
 type BlockExpression struct {
-	Node
-	Statements []Statement
-	Expr       Expression
+	Statements []Terminal
+	Expr       Expression `yaml:"return,omitempty"`
 }
 
 func (be *BlockExpression) Accept(v RusterBaseVisitor) {
@@ -41,18 +58,12 @@ func (be *BlockExpression) Accept(v RusterBaseVisitor) {
 }
 
 type UseDecl struct {
-	Item
-	All  bool
-	Path SimplePath
+	All  bool       `yaml:"includeAllItems,omitempty"`
+	Path SimplePath `yaml:"path,flow"`
 }
 
 func (ud *UseDecl) Accept(v RusterBaseVisitor) {
 	v.VisitUseDecl(ud)
-}
-
-type SimplePath struct {
-	Node
-	Segments PathSegments
 }
 
 func (sp *SimplePath) Accept(v RusterBaseVisitor) {
@@ -60,11 +71,10 @@ func (sp *SimplePath) Accept(v RusterBaseVisitor) {
 }
 
 type Function struct {
-	Item
-	ID         string
-	ReturnType Type
-	Params     []Parameter
-	Body       BlockExpression
+	ID         string          `yaml:"ID"`
+	ReturnType Type            `yaml:"ReturnType,flow,omitempty"`
+	Params     []Parameter     `yaml:"Params,omitempty"`
+	Body       BlockExpression `yaml:"Body"`
 }
 
 func (f *Function) Accept(v RusterBaseVisitor) {
@@ -72,9 +82,8 @@ func (f *Function) Accept(v RusterBaseVisitor) {
 }
 
 type Parameter struct {
-	Node
-	ID      interface{}
-	VarType Type
+	ID      string `yaml:"id"`
+	VarType Type   `yaml:"type,flow"`
 }
 
 func (p *Parameter) Accept(v RusterBaseVisitor) {
@@ -82,10 +91,9 @@ func (p *Parameter) Accept(v RusterBaseVisitor) {
 }
 
 type LetStatement struct {
-	Statement
-	Ptrn    Pattern
-	VarType Type
-	Expr    Expression
+	Ptrn    Pattern    `yaml:"assignee"`
+	VarType Type       `yaml:"type,attr,omitempty"`
+	Expr    Expression `yaml:"expression"`
 }
 
 func (ls *LetStatement) Accept(v RusterBaseVisitor) {

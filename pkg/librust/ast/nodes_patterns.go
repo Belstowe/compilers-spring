@@ -1,7 +1,6 @@
 package ast
 
 type LiteralPattern struct {
-	NonRangePattern
 	Tp  Literal
 	Val string
 }
@@ -11,7 +10,6 @@ func (lp *LiteralPattern) Accept(v RusterBaseVisitor) {
 }
 
 type ReferencePattern struct {
-	NonRangePattern
 	IsDoubleRef bool
 	Ptrn        NonRangePattern
 }
@@ -21,9 +19,8 @@ func (rp *ReferencePattern) Accept(v RusterBaseVisitor) {
 }
 
 type IdentifierPattern struct {
-	NonRangePattern
-	IsRef bool
-	IsMut bool
+	IsRef bool `yaml:"ref,omitempty"`
+	IsMut bool `yaml:"mut,omitempty"`
 	ID    string
 }
 
@@ -32,8 +29,7 @@ func (ip *IdentifierPattern) Accept(v RusterBaseVisitor) {
 }
 
 type PathPattern struct {
-	NonRangePattern
-	Segments []string
+	Segments []string `yaml:"segments"`
 }
 
 func (pp *PathPattern) Accept(v RusterBaseVisitor) {

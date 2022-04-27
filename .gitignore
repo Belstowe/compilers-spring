@@ -21,4 +21,4 @@
 !*/
 
 # ANTLR generated parser
-parser/
+/parser/

@@ -1,18 +1,14 @@
 package ast
 
-type TypePath struct {
-	Type
-	Segments []TypePathSegment
-}
+type TypePath []TypePathSegment
 
 func (tp *TypePath) Accept(v RusterBaseVisitor) {
 	v.VisitTypePath(tp)
 }
 
 type TypePathSegment struct {
-	Node
-	ID string
-	Fn Node
+	ID string `yaml:"id"`
+	Fn Node   `yaml:"function-body,omitempty"`
 }
 
 func (tps *TypePathSegment) Accept(v RusterBaseVisitor) {
@@ -20,8 +16,7 @@ func (tps *TypePathSegment) Accept(v RusterBaseVisitor) {
 }
 
 type TypePathFunction struct {
-	Node
-	Inputs     []Type
+	Inputs     []Terminal
 	ReturnType Type
 }
 
@@ -30,8 +25,7 @@ func (tpf *TypePathFunction) Accept(v RusterBaseVisitor) {
 }
 
 type ParenthesizedType struct {
-	Type
-	VarType Type
+	VarType Type `yaml:"type"`
 }
 
 func (pt *ParenthesizedType) Accept(v RusterBaseVisitor) {
@@ -39,9 +33,8 @@ func (pt *ParenthesizedType) Accept(v RusterBaseVisitor) {
 }
 
 type PointerType struct {
-	Type
-	IsMut   bool
-	VarType Type
+	IsMut   bool `yaml:"mutable,omitempty"`
+	VarType Type `yaml:"type"`
 }
 
 func (pt *PointerType) Accept(v RusterBaseVisitor) {
@@ -49,9 +42,8 @@ func (pt *PointerType) Accept(v RusterBaseVisitor) {
 }
 
 type ReferenceType struct {
-	Type
-	IsMutable bool
-	VarType   Type
+	IsMut   bool `yaml:"mutable,omitempty"`
+	VarType Type `yaml:"type"`
 }
 
 func (rt *ReferenceType) Accept(v RusterBaseVisitor) {
@@ -59,8 +51,7 @@ func (rt *ReferenceType) Accept(v RusterBaseVisitor) {
 }
 
 type TupleType struct {
-	Type
-	Types []Type
+	Types []Type `yaml:"type"`
 }
 
 func (tt *TupleType) Accept(v RusterBaseVisitor) {
@@ -68,9 +59,8 @@ func (tt *TupleType) Accept(v RusterBaseVisitor) {
 }
 
 type ArrayType struct {
-	Type
-	VarType Type
-	Expr    Expression
+	VarType Type       `yaml:"type"`
+	Expr    Expression `yaml:"patternExpression"`
 }
 
 func (at *ArrayType) Accept(v RusterBaseVisitor) {
@@ -78,8 +68,7 @@ func (at *ArrayType) Accept(v RusterBaseVisitor) {
 }
 
 type SliceType struct {
-	Type
-	VarType Type
+	VarType Type `yaml:"type"`
 }
 
 func (st *SliceType) Accept(v RusterBaseVisitor) {
