@@ -1,13 +1,7 @@
-package ast_nodes
-
-import "github.com/Compiler2022/compilers-1-Belstowe/parser"
-
-type Crate struct {
-	Items []Item
-}
+package ast
 
 type Node interface {
-	Accept(parser.RustParserVisitor)
+	Accept(v RusterBaseVisitor)
 }
 type Statement Node
 type Expression Statement
@@ -27,10 +21,23 @@ const (
 	Boolean Literal = "bool"
 )
 
+type Crate struct {
+	Node
+	Items []Item
+}
+
+func (c *Crate) Accept(v RusterBaseVisitor) {
+	v.VisitCrate(c)
+}
+
 type BlockExpression struct {
 	Node
 	Statements []Statement
 	Expr       Expression
+}
+
+func (be *BlockExpression) Accept(v RusterBaseVisitor) {
+	v.VisitBlockExpression(be)
 }
 
 type UseDecl struct {
@@ -39,9 +46,17 @@ type UseDecl struct {
 	Path SimplePath
 }
 
+func (ud *UseDecl) Accept(v RusterBaseVisitor) {
+	v.VisitUseDecl(ud)
+}
+
 type SimplePath struct {
 	Node
 	Segments PathSegments
+}
+
+func (sp *SimplePath) Accept(v RusterBaseVisitor) {
+	v.VisitSimplePath(sp)
 }
 
 type Function struct {
@@ -52,10 +67,18 @@ type Function struct {
 	Body       BlockExpression
 }
 
+func (f *Function) Accept(v RusterBaseVisitor) {
+	v.VisitFunction(f)
+}
+
 type Parameter struct {
 	Node
 	ID      interface{}
 	VarType Type
+}
+
+func (p *Parameter) Accept(v RusterBaseVisitor) {
+	v.VisitParameter(p)
 }
 
 type LetStatement struct {
@@ -63,4 +86,8 @@ type LetStatement struct {
 	Ptrn    Pattern
 	VarType Type
 	Expr    Expression
+}
+
+func (ls *LetStatement) Accept(v RusterBaseVisitor) {
+	v.VisitLetStatement(ls)
 }
