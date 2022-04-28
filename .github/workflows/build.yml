@@ -27,7 +27,7 @@ jobs:
         run: bash ./scripts/build.sh
 
       - name: 'Build Rust parser'
-        run: go build ./cmd/rust-parser/rust-parser.go
+        run: go build ./cmd/ruster/ruster.go
 
       - name: 'Test parser'
         run: go test ./test/...

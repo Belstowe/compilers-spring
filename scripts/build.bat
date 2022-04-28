@@ -11,5 +11,5 @@ if not exist "%antlr_path%" curl -O https://www.antlr.org/download/%antlr%
 
 go get -d github.com/antlr/antlr4/runtime/Go/antlr@%antlr_ver%
 pushd build\grammar
-java -jar %antlr_path% -o %output% -Dlanguage=Go RustLexer.g4
+java -jar %antlr_path% -o %output% -visitor -no-listener -Dlanguage=Go *.g4
 popd

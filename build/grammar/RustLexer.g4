@@ -11,8 +11,13 @@ KW_FN:          'fn';
 KW_FOR:         'for';
 KW_IF:          'if';
 KW_IN:          'in';
+KW_LET:         'let';
+KW_LOOP:        'loop';
+KW_MATCH:       'match';
 KW_MUT:         'mut';
+KW_REF:         'ref';
 KW_RETURN:      'return';
+KW_SELF:        'self';
 KW_STATIC:      'static';
 KW_STRUCT:      'struct';
 KW_SUPER:       'super';
@@ -32,7 +37,7 @@ CHAR_LITERAL : '\'' ( ~['\\\n\r\t] | '\\' ['nrt\\0] ) '\'' ;
 
 STRING_LITERAL : '"' ( ~["] | '\\' ["nrt\\0] )* '"' ;
 
-INTEGER_LITERAL : DEC_LITERAL INTEGER_SUFFIX?;
+INTEGER_LITERAL : '-'? DEC_LITERAL INTEGER_SUFFIX?;
 
 DEC_LITERAL: DEC_DIGIT (DEC_DIGIT | '_')*;
 
@@ -78,12 +83,15 @@ SHREQ: '>>=';
 
 UNDERSCORE: '_';
 DOT: '.';
+DOTDOT: '..';
+DOTDOTEQ: '..=';
 AT: '@';
 COMMA: ',';
 SEMI: ';';
 COLON: ':';
 PATHSEP: '::';
-RARROW: '->';
+THINARROW: '->';
+FATARROW: '=>';
 POUND: '#';
 DOLLAR: '$';
 QUESTION: '?';

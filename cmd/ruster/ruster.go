@@ -14,9 +14,10 @@ import (
 func main() {
 	var input_path string
 	var to_dump_tokens bool
+	var to_dump_ast bool
 
 	app := &cli.App{
-		Name:  "rust-parser",
+		Name:  "ruster",
 		Usage: "A simple Rust compiler using ANTLR",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -32,9 +33,18 @@ func main() {
 				Usage:       "Require lexer to dump tokens in stdout",
 				Destination: &to_dump_tokens,
 			},
+			&cli.BoolFlag{
+				Name:        "dump-ast",
+				Usage:       "Require parser to dump AST in stdout",
+				Destination: &to_dump_ast,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			var code io.Reader
+
+			if !to_dump_ast && !to_dump_tokens {
+				return nil
+			}
 
 			if input_path == "" {
 				fmt.Println("Input Rust code (press Ctrl+D (Unix) or Ctrl+Z (Win) to interrupt):")
@@ -49,6 +59,10 @@ func main() {
 
 			if to_dump_tokens {
 				librust.DumpTokens(code, os.Stdout)
+			}
+
+			if to_dump_ast {
+				librust.Parse(code, os.Stdout)
 			}
 
 			return nil
