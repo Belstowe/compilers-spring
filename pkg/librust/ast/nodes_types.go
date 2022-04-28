@@ -51,7 +51,7 @@ func (rt *ReferenceType) Accept(v RusterBaseVisitor) {
 }
 
 type TupleType struct {
-	Types []Type `yaml:"type"`
+	Types []Terminal `yaml:"type"`
 }
 
 func (tt *TupleType) Accept(v RusterBaseVisitor) {

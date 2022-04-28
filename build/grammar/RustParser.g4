@@ -52,7 +52,7 @@ expression
 	| expression '.' identifier								                    # FieldExpression
 	| expression '(' callParams? ')'						                    # CallExpression
 	| expression '.' tupleIndex								                    # TupleIndexingExpression
-	| expression '[' expression ']'							                    # IndexExpression
+	| Object=expression '[' Index=expression ']'							    # IndexExpression
 	| expression '?'                                                            # ErrorPropagationExpression
 	| RefToken=('&' | '&&') MutToken='mut'? expression                          # BorrowExpression
 	| '*' expression										                    # DereferenceExpression
@@ -149,8 +149,7 @@ nonRangePattern
 	| tuplePattern
 	| groupedPattern
 	| slicePattern
-	| pathPattern
-    | rangePattern ;
+	| pathPattern ;
 
 literalPattern
 	: Literal=(KW_TRUE
@@ -217,8 +216,8 @@ tupleType : '(' ((type ',')+ type?)? ')' ;
 arrayType : '[' type ';' expression ']' ;
 sliceType : '[' type ']' ;
 
-referenceType : '&' 'mut'? type ;
-pointerType : '*' ('mut' | 'const') type ;
+referenceType : '&' Mutable='mut'? type ;
+pointerType : '*' Mutable=('mut' | 'const') type ;
 
 functionType: 'fn' '(' functionParameters? ')' functionReturnType? ;
 

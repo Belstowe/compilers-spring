@@ -1,6 +1,8 @@
 package ast
 
 type CallParams []Terminal
+type ArrayElements []Terminal
+type TupleElements []Terminal
 
 type LiteralExpression struct {
 	Tp  Literal `yaml:"Type"`
@@ -85,12 +87,31 @@ func (uo *UnaryOperator) Accept(v RusterBaseVisitor) {
 
 type BinaryOperator struct {
 	Op  string     `yaml:"Operand"`
-	LHS Expression `yaml:",flow"`
-	RHS Expression `yaml:",flow"`
+	LHS Expression `yaml:"lhs"`
+	RHS Expression `yaml:"rhs"`
 }
 
 func (bo *BinaryOperator) Accept(v RusterBaseVisitor) {
 	v.VisitBinaryOperator(bo)
+}
+
+type RHSRangeOperator struct {
+	Op  string
+	Val Expression
+}
+
+func (rro *RHSRangeOperator) Accept(v RusterBaseVisitor) {
+	v.VisitRHSRangeOperator(rro)
+}
+
+type RangeOperator struct {
+	Op  string     `yaml:"Operand"`
+	LHS Expression `yaml:"lhs,flow"`
+	RHS Expression `yaml:"rhs,flow"`
+}
+
+func (ro *RangeOperator) Accept(v RusterBaseVisitor) {
+	v.VisitRangeOperator(ro)
 }
 
 type ReturnExpression struct {
@@ -153,4 +174,22 @@ type BorrowExpression struct {
 
 func (be *BorrowExpression) Accept(v RusterBaseVisitor) {
 	v.VisitBorrowExpression(be)
+}
+
+type ArrayIndexExpression struct {
+	Object Expression `yaml:"Array"`
+	Index  Expression `yaml:"Index,flow"`
+}
+
+func (aie *ArrayIndexExpression) Accept(v RusterBaseVisitor) {
+	v.VisitArrayIndexExpression(aie)
+}
+
+type TupleIndexExpression struct {
+	Object Expression `yaml:"Tuple"`
+	Index  string     `yaml:"Index,flow"`
+}
+
+func (tie *TupleIndexExpression) Accept(v RusterBaseVisitor) {
+	v.VisitTupleIndexExpression(tie)
 }

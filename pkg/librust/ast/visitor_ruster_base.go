@@ -21,6 +21,8 @@ type RusterBaseVisitor interface {
 	VisitIteratorLoopExpression(ile *IteratorLoopExpression) interface{}
 	VisitUnaryOperator(uo *UnaryOperator) interface{}
 	VisitBinaryOperator(bo *BinaryOperator) interface{}
+	VisitRHSRangeOperator(rro *RHSRangeOperator) interface{}
+	VisitRangeOperator(ro *RangeOperator) interface{}
 	VisitReturnExpression(e *ReturnExpression) interface{}
 	VisitContinueExpression(ce *ContinueExpression) interface{}
 	VisitBreakExpression(be *BreakExpression) interface{}
@@ -28,6 +30,8 @@ type RusterBaseVisitor interface {
 	VisitCallExpression(ce *CallExpression) interface{}
 	VisitMethodCallExpression(mce *MethodCallExpression) interface{}
 	VisitBorrowExpression(be *BorrowExpression) interface{}
+	VisitArrayIndexExpression(aie *ArrayIndexExpression) interface{}
+	VisitTupleIndexExpression(tie *TupleIndexExpression) interface{}
 
 	VisitLiteralPattern(lp *LiteralPattern) interface{}
 	VisitReferencePattern(rp *ReferencePattern) interface{}
