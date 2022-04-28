@@ -121,26 +121,6 @@ func (v *ANTLRRusterVisitor) VisitFunctionReturnType(ctx *parser.FunctionReturnT
 	return v.Visit(ctx.Type()).(Type)
 }
 
-func (v *ANTLRRusterVisitor) VisitStruct(ctx *parser.StructContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructFields(ctx *parser.StructFieldsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructField(ctx *parser.StructFieldContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitTypeAlias(ctx *parser.TypeAliasContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitConstantItem(ctx *parser.ConstantItemContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *ANTLRRusterVisitor) VisitLetStatement(ctx *parser.LetStatementContext) interface{} {
 	var statement LetStatement
 
@@ -197,10 +177,6 @@ func (v *ANTLRRusterVisitor) VisitReturnExpression(ctx *parser.ReturnExpressionC
 		expr.Expr = Wrap(v.Visit(ctx.Expression()).(Expression))
 	}
 	return expr
-}
-
-func (v *ANTLRRusterVisitor) VisitErrorPropagationExpression(ctx *parser.ErrorPropagationExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
 }
 
 func (v *ANTLRRusterVisitor) VisitContinueExpression(ctx *parser.ContinueExpressionContext) interface{} {
@@ -292,10 +268,6 @@ func (v *ANTLRRusterVisitor) VisitBreakExpression(ctx *parser.BreakExpressionCon
 	return expr
 }
 
-func (v *ANTLRRusterVisitor) VisitFieldExpression(ctx *parser.FieldExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *ANTLRRusterVisitor) VisitBorrowExpression(ctx *parser.BorrowExpressionContext) interface{} {
 	var expr BorrowExpression
 	expr.IsDoubleRef = ctx.RefToken.GetText() == "&&"
@@ -375,18 +347,6 @@ func (v *ANTLRRusterVisitor) VisitTupleIndex(ctx *parser.TupleIndexContext) inte
 	return ctx.INTEGER_LITERAL().GetText()
 }
 
-func (v *ANTLRRusterVisitor) VisitStructExpression(ctx *parser.StructExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructExprFields(ctx *parser.StructExprFieldsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructExprField(ctx *parser.StructExprFieldContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *ANTLRRusterVisitor) VisitCallParams(ctx *parser.CallParamsContext) interface{} {
 	segments := make([]Terminal, 0)
 	for _, e := range ctx.AllExpression() {
@@ -415,22 +375,6 @@ func (v *ANTLRRusterVisitor) VisitIfExpression(ctx *parser.IfExpressionContext) 
 		expr.IfFalse = nil
 	}
 	return expr
-}
-
-func (v *ANTLRRusterVisitor) VisitMatchExpression(ctx *parser.MatchExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitMatchArms(ctx *parser.MatchArmsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitMatchArmExpression(ctx *parser.MatchArmExpressionContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitMatchArm(ctx *parser.MatchArmContext) interface{} {
-	return v.VisitChildren(ctx)
 }
 
 func (v *ANTLRRusterVisitor) VisitInfiniteLoopExpression(ctx *parser.InfiniteLoopExpressionContext) interface{} {
@@ -488,70 +432,6 @@ func (v *ANTLRRusterVisitor) VisitIdentifierPattern(ctx *parser.IdentifierPatter
 	return ptrn
 }
 
-func (v *ANTLRRusterVisitor) VisitWildcardPattern(ctx *parser.WildcardPatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitRestPattern(ctx *parser.RestPatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitReferencePattern(ctx *parser.ReferencePatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructPattern(ctx *parser.StructPatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructPatternElements(ctx *parser.StructPatternElementsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructPatternFields(ctx *parser.StructPatternFieldsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitStructPatternField(ctx *parser.StructPatternFieldContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitTuplePattern(ctx *parser.TuplePatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitTuplePatternItems(ctx *parser.TuplePatternItemsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitGroupedPattern(ctx *parser.GroupedPatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitSlicePattern(ctx *parser.SlicePatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitSlicePatternItems(ctx *parser.SlicePatternItemsContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitPathPattern(ctx *parser.PathPatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitRangePattern(ctx *parser.RangePatternContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitRangePatternBound(ctx *parser.RangePatternBoundContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
-func (v *ANTLRRusterVisitor) VisitNestedType(ctx *parser.NestedTypeContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *ANTLRRusterVisitor) VisitNeverType(ctx *parser.NeverTypeContext) interface{} {
 	var tp NeverType
 	return tp
@@ -604,10 +484,6 @@ func (v *ANTLRRusterVisitor) VisitPointerType(ctx *parser.PointerTypeContext) in
 	}
 	tp.VarType = Wrap(v.Visit(ctx.Type()).(Type))
 	return tp
-}
-
-func (v *ANTLRRusterVisitor) VisitFunctionType(ctx *parser.FunctionTypeContext) interface{} {
-	return v.VisitChildren(ctx)
 }
 
 func (v *ANTLRRusterVisitor) VisitTypePath(ctx *parser.TypePathContext) interface{} {
@@ -681,6 +557,124 @@ func (v *ANTLRRusterVisitor) VisitExpressionStatement(ctx *parser.ExpressionStat
 	return nil
 }
 
+func (v *ANTLRRusterVisitor) VisitRHSRangeExpression(ctx *parser.RHSRangeExpressionContext) interface{} {
+	var expr RHSRangeOperator
+	expr.Val = Wrap(v.Visit(ctx.Val).(Expression))
+	expr.Op = ctx.Op.GetText()
+	return expr
+}
+
+func (v *ANTLRRusterVisitor) VisitStatement(ctx *parser.StatementContext) interface{} {
+	if ctx.Item() != nil {
+		return v.Visit(ctx.Item())
+	} else if ctx.LetStatement() != nil {
+		return v.Visit(ctx.LetStatement())
+	} else if ctx.ExpressionStatement() != nil {
+		return v.Visit(ctx.ExpressionStatement())
+	}
+	return ctx.GetText()
+}
+
+/*
+ * TBD
+ */
+
+func (v *ANTLRRusterVisitor) VisitErrorPropagationExpression(ctx *parser.ErrorPropagationExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitWildcardPattern(ctx *parser.WildcardPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitRestPattern(ctx *parser.RestPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitReferencePattern(ctx *parser.ReferencePatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructPattern(ctx *parser.StructPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructPatternElements(ctx *parser.StructPatternElementsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructPatternFields(ctx *parser.StructPatternFieldsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructPatternField(ctx *parser.StructPatternFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitTuplePattern(ctx *parser.TuplePatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitTuplePatternItems(ctx *parser.TuplePatternItemsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitGroupedPattern(ctx *parser.GroupedPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitSlicePattern(ctx *parser.SlicePatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitSlicePatternItems(ctx *parser.SlicePatternItemsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitPathPattern(ctx *parser.PathPatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitRangePattern(ctx *parser.RangePatternContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitRangePatternBound(ctx *parser.RangePatternBoundContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitFunctionType(ctx *parser.FunctionTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitNestedType(ctx *parser.NestedTypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitType(ctx *parser.TypeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStruct(ctx *parser.StructContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructFields(ctx *parser.StructFieldsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructField(ctx *parser.StructFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitTypeAlias(ctx *parser.TypeAliasContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitConstantItem(ctx *parser.ConstantItemContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *ANTLRRusterVisitor) VisitExpressionWithBlock(ctx *parser.ExpressionWithBlockContext) interface{} {
 	return v.VisitChildren(ctx)
 }
@@ -705,28 +699,38 @@ func (v *ANTLRRusterVisitor) VisitPathExpression_(ctx *parser.PathExpression_Con
 	return v.VisitChildren(ctx)
 }
 
+func (v *ANTLRRusterVisitor) VisitFieldExpression(ctx *parser.FieldExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructExpression(ctx *parser.StructExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructExprFields(ctx *parser.StructExprFieldsContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitStructExprField(ctx *parser.StructExprFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *ANTLRRusterVisitor) VisitPattern(ctx *parser.PatternContext) interface{} {
 	return v.VisitChildren(ctx)
 }
 
-func (v *ANTLRRusterVisitor) VisitRHSRangeExpression(ctx *parser.RHSRangeExpressionContext) interface{} {
-	var expr RHSRangeOperator
-	expr.Val = Wrap(v.Visit(ctx.Val).(Expression))
-	expr.Op = ctx.Op.GetText()
-	return expr
+func (v *ANTLRRusterVisitor) VisitMatchExpression(ctx *parser.MatchExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
 }
 
-func (v *ANTLRRusterVisitor) VisitStatement(ctx *parser.StatementContext) interface{} {
-	if ctx.Item() != nil {
-		return v.Visit(ctx.Item())
-	} else if ctx.LetStatement() != nil {
-		return v.Visit(ctx.LetStatement())
-	} else if ctx.ExpressionStatement() != nil {
-		return v.Visit(ctx.ExpressionStatement())
-	}
-	return ctx.GetText()
+func (v *ANTLRRusterVisitor) VisitMatchArms(ctx *parser.MatchArmsContext) interface{} {
+	return v.VisitChildren(ctx)
 }
 
-func (v *ANTLRRusterVisitor) VisitType(ctx *parser.TypeContext) interface{} {
+func (v *ANTLRRusterVisitor) VisitMatchArmExpression(ctx *parser.MatchArmExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *ANTLRRusterVisitor) VisitMatchArm(ctx *parser.MatchArmContext) interface{} {
 	return v.VisitChildren(ctx)
 }
