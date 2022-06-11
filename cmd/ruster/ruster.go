@@ -57,13 +57,7 @@ func main() {
 				}
 			}
 
-			if to_dump_tokens {
-				librust.DumpTokens(code, os.Stdout)
-			}
-
-			if to_dump_ast {
-				librust.Parse(code, os.Stdout)
-			}
+			librust.Parse(code, os.Stdout, to_dump_tokens, to_dump_ast)
 
 			return nil
 		},

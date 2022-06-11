@@ -43,7 +43,17 @@ func (sel *StreamErrorListener) SyntaxError(_ antlr.Recognizer, _ interface{}, l
 	sel.errors = append(sel.errors, Error{line, column, msg})
 }
 
-func Parse(in io.Reader, out io.Writer) {
+type TokenVocabulary []string
+
+func (g *TokenVocabulary) LLVMFormat(token *antlr.Token) string {
+	return fmt.Sprintf("Loc=<%d:%d>\t%s '%s'\n",
+		(*token).GetLine(),
+		(*token).GetColumn()+1,
+		(*g)[(*token).GetTokenType()],
+		(*token).GetText())
+}
+
+func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool) {
 	b, err := io.ReadAll(in)
 	if err != nil {
 		panic(err)
@@ -51,6 +61,17 @@ func Parse(in io.Reader, out io.Writer) {
 
 	input := antlr.NewInputStream(string(b))
 	lexer := parser.NewRustLexer(input)
+
+	if to_dump_tokens {
+		var vocabulary TokenVocabulary = lexer.GetSymbolicNames()
+		for _, token := range lexer.GetAllTokens() {
+			_, err := out.Write([]byte(vocabulary.LLVMFormat(&token)))
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
 	stream := antlr.NewCommonTokenStream(lexer, 0)
 	p := parser.NewRustParser(stream)
 
@@ -66,10 +87,12 @@ func Parse(in io.Reader, out io.Writer) {
 		return
 	}
 
-	builder := ast.NewANTLRRusterVisitor()
-	ast := builder.Visit(parseTree).(ast.Crate)
+	if to_dump_ast {
+		builder := ast.NewANTLRRusterVisitor()
+		ast := builder.Visit(parseTree).(ast.Crate)
 
-	DumpAST(ast, out)
+		DumpAST(ast, out)
+	}
 }
 
 func DumpErrors(errors []Error, out io.Writer) {
@@ -82,8 +105,6 @@ func DumpErrors(errors []Error, out io.Writer) {
 }
 
 func DumpAST(tree ast.Crate, out io.Writer) {
-	//res, err := xml.MarshalIndent(tree, "", "  ")
-	//res, err := json.MarshalIndent(tree, "", "  ")
 	enc := yaml.NewEncoder(out)
 	enc.SetIndent(2)
 	err := enc.Encode(tree)
