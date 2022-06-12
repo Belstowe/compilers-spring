@@ -7,7 +7,6 @@ on:
     branches:
       - lab*
       - main
-  pull_request:
 
 jobs:
   build:
