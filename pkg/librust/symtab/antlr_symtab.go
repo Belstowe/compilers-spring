@@ -1,4 +1,4 @@
-package semantics
+package symtab
 
 import (
 	"fmt"
