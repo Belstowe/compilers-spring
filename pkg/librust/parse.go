@@ -101,7 +101,10 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 		if log.Type == symtab.INFO && !verbose {
 			continue
 		}
-		out.Write([]byte(log.String() + "\n"))
+		_, err := out.Write([]byte(log.String() + "\n"))
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
