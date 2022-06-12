@@ -54,7 +54,7 @@ func (g *TokenVocabulary) LLVMFormat(token *antlr.Token) string {
 		(*token).GetText())
 }
 
-func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool) {
+func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, verbose bool) {
 	b, err := io.ReadAll(in)
 	if err != nil {
 		panic(err)
@@ -98,7 +98,10 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool) {
 	symtabBuilder := semantics.NewANTLRSymtabVisitor()
 	logs := symtabBuilder.Visit(parseTree).([]semantics.Message)
 	for _, log := range logs {
-		out.Write([]byte(log.String()))
+		if log.Type == semantics.INFO && !verbose {
+			continue
+		}
+		out.Write([]byte(log.String() + "\n"))
 	}
 }
 

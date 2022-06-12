@@ -15,6 +15,7 @@ func main() {
 	var input_path string
 	var to_dump_tokens bool
 	var to_dump_ast bool
+	var verbose bool
 
 	app := &cli.App{
 		Name:  "ruster",
@@ -38,13 +39,14 @@ func main() {
 				Usage:       "Require parser to dump AST in stdout",
 				Destination: &to_dump_ast,
 			},
+			&cli.BoolFlag{
+				Name:        "verbose",
+				Usage:       "Print info messages as well",
+				Destination: &verbose,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			var code io.Reader
-
-			if !to_dump_ast && !to_dump_tokens {
-				return nil
-			}
 
 			if input_path == "" {
 				fmt.Println("Input Rust code (press Ctrl+D (Unix) or Ctrl+Z (Win) to interrupt):")
@@ -57,7 +59,7 @@ func main() {
 				}
 			}
 
-			librust.Parse(code, os.Stdout, to_dump_tokens, to_dump_ast)
+			librust.Parse(code, os.Stdout, to_dump_tokens, to_dump_ast, verbose)
 
 			return nil
 		},

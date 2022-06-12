@@ -392,9 +392,8 @@ func (v *ANTLRSymtabVisitor) VisitLetStatement(ctx *parser.LetStatementContext) 
 }
 
 func (v *ANTLRSymtabVisitor) VisitTypeCastExpression(ctx *parser.TypeCastExpressionContext) interface{} {
-	v.Visit(ctx.Type())
 	v.Visit(ctx.Expression())
-	return nil
+	return v.Visit(ctx.Type()).(IDAttr).BaseType
 }
 
 func (v *ANTLRSymtabVisitor) VisitTupleExpression(ctx *parser.TupleExpressionContext) interface{} {
@@ -506,7 +505,7 @@ func (v *ANTLRSymtabVisitor) VisitCompoundAssignmentExpression(ctx *parser.Compo
 
 func (v *ANTLRSymtabVisitor) VisitArrayExpression(ctx *parser.ArrayExpressionContext) interface{} {
 	v.Visit(ctx.ArrayElements())
-	return nil
+	return "array"
 }
 
 func (v *ANTLRSymtabVisitor) VisitCompoundAssignOperator(ctx *parser.CompoundAssignOperatorContext) interface{} {

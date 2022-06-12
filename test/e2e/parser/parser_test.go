@@ -23,9 +23,9 @@ func TestCorrectCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), buf, false, true)
+		librust.Parse(bufio.NewReader(example_data), buf, false, true, false)
 		for row, line := range strings.Split(buf.String(), "\n") {
-			if strings.Contains(line, "extraneous") || strings.Contains(line, "mismatched") {
+			if strings.Contains(line, "extraneous") || strings.Contains(line, "mismatched") || strings.Contains(line, "WARN") || strings.Contains(line, "ERROR") {
 				t.Errorf("[%s] %s", example_path, line)
 			}
 			if strings.Contains(line, "interface") {
