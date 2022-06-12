@@ -347,7 +347,9 @@ func (v *ANTLRSymtabVisitor) VisitFunction(ctx *parser.FunctionContext) interfac
 	})
 
 	v.enterScope()
-	v.Visit(ctx.FunctionParameters())
+	if ctx.FunctionParameters() != nil {
+		v.Visit(ctx.FunctionParameters())
+	}
 	v.Visit(ctx.BlockExpression())
 	v.exitScope()
 
@@ -580,6 +582,12 @@ func (v *ANTLRSymtabVisitor) VisitPathExpression(ctx *parser.PathExpressionConte
 	for _, e := range ctx.AllSimplePathSegment() {
 		segments = append(segments, v.Visit(e).(string))
 	}
+	if len(segments) > 1 {
+		namespace := segments[:len(segments)-1]
+		v.assertTypeDeclared(strings.Join(namespace, "::"), "namespace")
+	} else {
+		v.assertDeclared(segments[0])
+	}
 	return strings.Join(segments, "::")
 }
 
@@ -606,9 +614,12 @@ func (v *ANTLRSymtabVisitor) VisitPredicateLoopExpression(ctx *parser.PredicateL
 }
 
 func (v *ANTLRSymtabVisitor) VisitIteratorLoopExpression(ctx *parser.IteratorLoopExpressionContext) interface{} {
-	v.Visit(ctx.Pattern())
+	v.enterScope()
+	ptrn := v.Visit(ctx.Pattern()).(PatternReturn)
+	v.declare(ptrn.Name, IDAttr{Type: "value", BaseType: ptrn.Type, Volatile: true})
 	v.Visit(ctx.Expression())
 	v.Visit(ctx.BlockExpression())
+	v.exitScope()
 	return nil
 }
 

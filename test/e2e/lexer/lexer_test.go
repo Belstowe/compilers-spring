@@ -25,7 +25,7 @@ func TestCorrectCode(t *testing.T) {
 		buf := bytes.NewBufferString("")
 		librust.Parse(bufio.NewReader(example_data), buf, true, false, false)
 		for _, line := range strings.Split(buf.String(), "\n") {
-			if strings.Contains(line, "error") || strings.Contains(line, "WARN") || strings.Contains(line, "ERROR") {
+			if strings.Contains(line, "error") {
 				t.Errorf("[%s] %s", example_path, line)
 			}
 		}
