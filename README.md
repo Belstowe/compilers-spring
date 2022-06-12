@@ -4,7 +4,7 @@
 
 Ковалев Максим Игоревич, гр. ИВ-923.
 
-## Лабораторная работа №3. Синтаксический анализ
+## Лабораторная работа №4. Таблица символов
 
 * **Парсер для языка:** Rust *(вариант 14)*.
 * **Язык рантайма:** Go.
@@ -47,5 +47,6 @@ GLOBAL OPTIONS:
    --input value, -i value  Path to Rust code file for parsing (default: read from terminal)
    --dump-tokens            Require lexer to dump tokens in stdout (default: false)
    --dump-ast               Require parser to dump AST in stdout (default: false)
+   --verbose, -v            Print info messages as well (default: false)
    --help, -h               show help (default: false)
 ```

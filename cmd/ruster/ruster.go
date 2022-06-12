@@ -41,6 +41,7 @@ func main() {
 			},
 			&cli.BoolFlag{
 				Name:        "verbose",
+				Aliases:     []string{"v"},
 				Usage:       "Print info messages as well",
 				Destination: &verbose,
 			},
