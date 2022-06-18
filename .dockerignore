@@ -2,8 +2,7 @@
 *
 
 # But not these files...
-!/.gitignore
-!/.github/**
+!/.dockerignore
 !**/examples/*.rs
 !/scripts/**
 !/build/grammar/*.g4
@@ -22,7 +21,3 @@
 
 # ANTLR generated parser
 /parser/
-
-# Docker
-!.dockerignore
-!Dockerfile
