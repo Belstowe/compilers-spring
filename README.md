@@ -68,3 +68,12 @@ GLOBAL OPTIONS:
    --verbose, -v            Print info messages as well (default: false)
    --help, -h               show help (default: false)
 ```
+
+## Примеры
+
+В проекте выложены следующие примеры (упрощённого) Rust-кода:
+
+```sh
+examples/*                     # Корректный код, который должен обрабатываться компилятором без ошибок
+examples/invalid/semantics/**  # Примеры неправильной семантики; лексер и парсер дадут этим примерам зелёный свет (лабораторные работы #4, #5)
+```
