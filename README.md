@@ -11,6 +11,24 @@
 
 ## Сборка и запуск
 
+### Docker
+
+Для постройки и входа в тестовый Docker-образ в одну команду созданы следующие скрипты:
+```
+Unix    $ ./scripts/docker-run.sh
+Windows > .\scripts\docker-run.bat
+```
+
+Полезными командами будут далее:
+```
+$ go test ./test/...                               # Запуск всех тестов (включая тесты на некорректный код)
+$ ./ruster --dump-tokens -i ./examples/min.rs      # Вывод лексических токенов (лабораторная работа #2)
+$ ./ruster --dump-ast -i ./examples/gcd.rs         # Вывод AST-дерева (лабораторная работа #3)
+$ ./ruster --verbose -i ./examples/find_substr.rs  # Вывод информационных сообщений семантического визитора (лабораторная работа #4)
+```
+
+### Стандарт
+
 Для проекта необходимо установить компилятор **[Go](https://go.dev/dl/)**.
 
 1. Установка ANTLR4 Go Runtime *(пакет с поддерживаемой версией ANTLR4 закачивается автоматически)*:
@@ -49,4 +67,13 @@ GLOBAL OPTIONS:
    --dump-ast               Require parser to dump AST in stdout (default: false)
    --verbose, -v            Print info messages as well (default: false)
    --help, -h               show help (default: false)
+```
+
+## Примеры
+
+В проекте выложены следующие примеры (упрощённого) Rust-кода:
+
+```sh
+examples/*                     # Корректный код, который должен обрабатываться компилятором без ошибок
+examples/invalid/semantics/**  # Примеры неправильной семантики; лексер и парсер дадут этим примерам зелёный свет (лабораторные работы #4, #5)
 ```

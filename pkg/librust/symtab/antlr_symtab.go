@@ -312,6 +312,14 @@ func (v *ANTLRSymtabVisitor) VisitCrate(ctx *parser.CrateContext) interface{} {
 		Type:     "namespace",
 		BaseType: "namespace",
 	})
+	v.declare("write", IDAttr{
+		Type:     "function",
+		BaseType: "void",
+	})
+	v.declare("writeln", IDAttr{
+		Type:     "function",
+		BaseType: "void",
+	})
 	for _, element := range ctx.AllItem() {
 		v.Visit(element)
 	}
