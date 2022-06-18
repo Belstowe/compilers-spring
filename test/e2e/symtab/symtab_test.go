@@ -34,9 +34,9 @@ func TestCorrectCode(t *testing.T) {
 
 func TestFlawedCode(t *testing.T) {
 	examples := []string{
-		"./examples/redefine_fn.rs",
-		"./examples/redefine_vars.rs",
-		"./examples/undefined.rs",
+		"../../../examples/invalid/semantics/redefine_fn.rs",
+		"../../../examples/invalid/semantics/redefine_vars.rs",
+		"../../../examples/invalid/semantics/undefined.rs",
 	}
 
 	for _, example_path := range examples {
@@ -55,8 +55,8 @@ func TestFlawedCode(t *testing.T) {
 
 func TestSlightlyFlawedCode(t *testing.T) {
 	examples := []string{
-		"./examples/redefine_std.rs",
-		"./examples/redefine_upperscope.rs",
+		"../../../examples/invalid/semantics/redefine_std.rs",
+		"../../../examples/invalid/semantics/redefine_upperscope.rs",
 	}
 
 	for _, example_path := range examples {
