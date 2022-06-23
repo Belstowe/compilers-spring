@@ -1,34 +1,34 @@
 package ast
 
-type CallParams []Terminal
-type ArrayElements []Terminal
-type TupleElements []Terminal
+type CallParams []Expression
+type ArrayElements []Expression
+type TupleElements []Expression
 
 type LiteralExpression struct {
 	Tp  Literal `yaml:"Type"`
 	Val string  `yaml:"Value"`
 }
 
-func (le *LiteralExpression) Accept(v RusterBaseVisitor) {
-	v.VisitLiteralExpression(le)
+func (le *LiteralExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitLiteralExpression(le)
 }
 
 type PathExpression struct {
 	Segments PathSegments
 }
 
-func (pe *PathExpression) Accept(v RusterBaseVisitor) {
-	v.VisitPathExpression(pe)
+func (pe *PathExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitPathExpression(pe)
 }
 
 type IfExpression struct {
 	Expr    Expression      `yaml:"If"`
 	IfTrue  BlockExpression `yaml:"Do"`
-	IfFalse Node            `yaml:"Else,omitempty"`
+	IfFalse interface{}     `yaml:"Else,omitempty"`
 }
 
-func (ie *IfExpression) Accept(v RusterBaseVisitor) {
-	v.VisitIfExpression(ie)
+func (ie *IfExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitIfExpression(ie)
 }
 
 type MatchExpression struct {
@@ -36,8 +36,8 @@ type MatchExpression struct {
 	Cases []MatchArm
 }
 
-func (me *MatchExpression) Accept(v RusterBaseVisitor) {
-	v.VisitMatchExpression(me)
+func (me *MatchExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitMatchExpression(me)
 }
 
 type MatchArm struct {
@@ -45,16 +45,16 @@ type MatchArm struct {
 	Body     BlockExpression
 }
 
-func (ma *MatchArm) Accept(v RusterBaseVisitor) {
-	v.VisitMatchArm(ma)
+func (ma *MatchArm) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitMatchArm(ma)
 }
 
 type InfiniteLoopExpression struct {
 	Body BlockExpression `yaml:"Do"`
 }
 
-func (ile *InfiniteLoopExpression) Accept(v RusterBaseVisitor) {
-	v.VisitInfiniteLoopExpression(ile)
+func (ile *InfiniteLoopExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitInfiniteLoopExpression(ile)
 }
 
 type PredicateLoopExpression struct {
@@ -62,8 +62,8 @@ type PredicateLoopExpression struct {
 	Body BlockExpression `yaml:"Do"`
 }
 
-func (ple *PredicateLoopExpression) Accept(v RusterBaseVisitor) {
-	v.VisitPredicateLoopExpression(ple)
+func (ple *PredicateLoopExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitPredicateLoopExpression(ple)
 }
 
 type IteratorLoopExpression struct {
@@ -72,8 +72,8 @@ type IteratorLoopExpression struct {
 	Body BlockExpression `yaml:"Do"`
 }
 
-func (ile *IteratorLoopExpression) Accept(v RusterBaseVisitor) {
-	v.VisitIteratorLoopExpression(ile)
+func (ile *IteratorLoopExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitIteratorLoopExpression(ile)
 }
 
 type UnaryOperator struct {
@@ -81,8 +81,8 @@ type UnaryOperator struct {
 	Val Expression
 }
 
-func (uo *UnaryOperator) Accept(v RusterBaseVisitor) {
-	v.VisitUnaryOperator(uo)
+func (uo *UnaryOperator) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitUnaryOperator(uo)
 }
 
 type BinaryOperator struct {
@@ -91,8 +91,8 @@ type BinaryOperator struct {
 	RHS Expression `yaml:"rhs"`
 }
 
-func (bo *BinaryOperator) Accept(v RusterBaseVisitor) {
-	v.VisitBinaryOperator(bo)
+func (bo *BinaryOperator) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitBinaryOperator(bo)
 }
 
 type RHSRangeOperator struct {
@@ -100,8 +100,8 @@ type RHSRangeOperator struct {
 	Val Expression
 }
 
-func (rro *RHSRangeOperator) Accept(v RusterBaseVisitor) {
-	v.VisitRHSRangeOperator(rro)
+func (rro *RHSRangeOperator) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitRHSRangeOperator(rro)
 }
 
 type RangeOperator struct {
@@ -110,32 +110,32 @@ type RangeOperator struct {
 	RHS Expression `yaml:"rhs,flow"`
 }
 
-func (ro *RangeOperator) Accept(v RusterBaseVisitor) {
-	v.VisitRangeOperator(ro)
+func (ro *RangeOperator) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitRangeOperator(ro)
 }
 
 type ReturnExpression struct {
 	Expr Expression `yaml:"return,flow,omitempty"`
 }
 
-func (re *ReturnExpression) Accept(v RusterBaseVisitor) {
-	v.VisitReturnExpression(re)
+func (re *ReturnExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitReturnExpression(re)
 }
 
 type ContinueExpression struct {
 	Expr Expression `yaml:"continue,flow,omitempty"`
 }
 
-func (ce *ContinueExpression) Accept(v RusterBaseVisitor) {
-	v.VisitContinueExpression(ce)
+func (ce *ContinueExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitContinueExpression(ce)
 }
 
 type BreakExpression struct {
 	Expr Expression `yaml:"break,flow,omitempty"`
 }
 
-func (be *BreakExpression) Accept(v RusterBaseVisitor) {
-	v.VisitBreakExpression(be)
+func (be *BreakExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitBreakExpression(be)
 }
 
 type TypeCastExpression struct {
@@ -143,8 +143,8 @@ type TypeCastExpression struct {
 	Tp   Type
 }
 
-func (tce *TypeCastExpression) Accept(v RusterBaseVisitor) {
-	v.VisitTypeCastExpression(tce)
+func (tce *TypeCastExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTypeCastExpression(tce)
 }
 
 type CallExpression struct {
@@ -152,8 +152,8 @@ type CallExpression struct {
 	Params   CallParams
 }
 
-func (ce *CallExpression) Accept(v RusterBaseVisitor) {
-	v.VisitCallExpression(ce)
+func (ce *CallExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitCallExpression(ce)
 }
 
 type MethodCallExpression struct {
@@ -162,8 +162,8 @@ type MethodCallExpression struct {
 	Method   string
 }
 
-func (mce *MethodCallExpression) Accept(v RusterBaseVisitor) {
-	v.VisitMethodCallExpression(mce)
+func (mce *MethodCallExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitMethodCallExpression(mce)
 }
 
 type BorrowExpression struct {
@@ -172,8 +172,8 @@ type BorrowExpression struct {
 	Expr        Expression `yaml:"Expression,flow"`
 }
 
-func (be *BorrowExpression) Accept(v RusterBaseVisitor) {
-	v.VisitBorrowExpression(be)
+func (be *BorrowExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitBorrowExpression(be)
 }
 
 type ArrayIndexExpression struct {
@@ -181,8 +181,8 @@ type ArrayIndexExpression struct {
 	Index  Expression `yaml:"Index,flow"`
 }
 
-func (aie *ArrayIndexExpression) Accept(v RusterBaseVisitor) {
-	v.VisitArrayIndexExpression(aie)
+func (aie *ArrayIndexExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitArrayIndexExpression(aie)
 }
 
 type TupleIndexExpression struct {
@@ -190,6 +190,6 @@ type TupleIndexExpression struct {
 	Index  string     `yaml:"Index,flow"`
 }
 
-func (tie *TupleIndexExpression) Accept(v RusterBaseVisitor) {
-	v.VisitTupleIndexExpression(tie)
+func (tie *TupleIndexExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTupleIndexExpression(tie)
 }

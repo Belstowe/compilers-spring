@@ -6,7 +6,9 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-type Node interface{}
+type Node interface {
+	Accept(v RusterBaseVisitor) interface{}
+}
 type Statement Node
 type Expression Statement
 type ExpressionWithBlock Expression
@@ -20,7 +22,8 @@ type PathSegments []string
 type SimplePath []string
 
 type Terminal struct {
-	n interface{}
+	Node
+	n Node
 }
 
 func (t Terminal) MarshalYAML() (interface{}, error) {
@@ -29,7 +32,11 @@ func (t Terminal) MarshalYAML() (interface{}, error) {
 	return m, nil
 }
 
-func Wrap(n interface{}) Terminal {
+func (t *Terminal) Accept(v RusterBaseVisitor) interface{} {
+	return v.Visit(t.n)
+}
+
+func Wrap(n Node) Terminal {
 	return Terminal{n: n}
 }
 
@@ -44,17 +51,17 @@ type Crate struct {
 	Items []Item
 }
 
-func (c *Crate) Accept(v RusterBaseVisitor) {
-	v.VisitCrate(c)
+func (c *Crate) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitCrate(c)
 }
 
 type BlockExpression struct {
-	Statements []Terminal
+	Statements []Expression
 	Expr       Expression `yaml:"return,omitempty"`
 }
 
-func (be *BlockExpression) Accept(v RusterBaseVisitor) {
-	v.VisitBlockExpression(be)
+func (be *BlockExpression) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitBlockExpression(be)
 }
 
 type UseDecl struct {
@@ -62,12 +69,12 @@ type UseDecl struct {
 	Path SimplePath `yaml:"path,flow"`
 }
 
-func (ud *UseDecl) Accept(v RusterBaseVisitor) {
-	v.VisitUseDecl(ud)
+func (ud *UseDecl) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitUseDecl(ud)
 }
 
-func (sp *SimplePath) Accept(v RusterBaseVisitor) {
-	v.VisitSimplePath(sp)
+func (sp *SimplePath) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitSimplePath(sp)
 }
 
 type Function struct {
@@ -77,8 +84,8 @@ type Function struct {
 	Body       BlockExpression `yaml:"Body"`
 }
 
-func (f *Function) Accept(v RusterBaseVisitor) {
-	v.VisitFunction(f)
+func (f *Function) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitFunction(f)
 }
 
 type Parameter struct {
@@ -86,8 +93,8 @@ type Parameter struct {
 	VarType Type   `yaml:"type,flow"`
 }
 
-func (p *Parameter) Accept(v RusterBaseVisitor) {
-	v.VisitParameter(p)
+func (p *Parameter) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitParameter(p)
 }
 
 type LetStatement struct {
@@ -96,6 +103,6 @@ type LetStatement struct {
 	Expr    Expression `yaml:"expression"`
 }
 
-func (ls *LetStatement) Accept(v RusterBaseVisitor) {
-	v.VisitLetStatement(ls)
+func (ls *LetStatement) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitLetStatement(ls)
 }

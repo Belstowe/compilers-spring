@@ -5,8 +5,8 @@ type LiteralPattern struct {
 	Val string
 }
 
-func (lp *LiteralPattern) Accept(v RusterBaseVisitor) {
-	v.VisitLiteralPattern(lp)
+func (lp *LiteralPattern) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitLiteralPattern(lp)
 }
 
 type ReferencePattern struct {
@@ -14,8 +14,8 @@ type ReferencePattern struct {
 	Ptrn        NonRangePattern
 }
 
-func (rp *ReferencePattern) Accept(v RusterBaseVisitor) {
-	v.VisitReferencePattern(rp)
+func (rp *ReferencePattern) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitReferencePattern(rp)
 }
 
 type IdentifierPattern struct {
@@ -24,14 +24,14 @@ type IdentifierPattern struct {
 	ID    string
 }
 
-func (ip *IdentifierPattern) Accept(v RusterBaseVisitor) {
-	v.VisitIdentifierPattern(ip)
+func (ip *IdentifierPattern) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitIdentifierPattern(ip)
 }
 
 type PathPattern struct {
 	Segments []string `yaml:"segments"`
 }
 
-func (pp *PathPattern) Accept(v RusterBaseVisitor) {
-	v.VisitPathPattern(pp)
+func (pp *PathPattern) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitPathPattern(pp)
 }
