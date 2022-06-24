@@ -88,16 +88,17 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 		return
 	}
 
-	if to_dump_ast {
-		builder := ast.NewANTLRRusterVisitor()
-		ast := builder.Visit(parseTree).(ast.Crate)
+	builder := ast.NewANTLRRusterVisitor()
+	ast := builder.Visit(parseTree).(ast.Crate)
 
+	if to_dump_ast {
 		DumpAST(ast, out)
 	}
 
-	symtabBuilder := symtab.NewANTLRSymtabVisitor()
-	logs := symtabBuilder.Visit(parseTree).([]symtab.Message)
-	for _, log := range logs {
+	symtabBuilder := symtab.NewANTLRSemVisitor()
+	ast.Accept(symtabBuilder)
+
+	for _, log := range symtabBuilder.DumpLogs().([]symtab.Message) {
 		if log.Type == symtab.INFO && !verbose {
 			continue
 		}

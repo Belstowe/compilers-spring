@@ -1,6 +1,8 @@
 package ast
 
 type RusterBaseVisitor interface {
+	DumpLogs() interface{}
+
 	Visit(tree Node) interface{}
 
 	VisitCrate(c *Crate) interface{}

@@ -56,7 +56,7 @@ func (c *Crate) Accept(v RusterBaseVisitor) interface{} {
 }
 
 type BlockExpression struct {
-	Statements []Expression
+	Statements []Statement
 	Expr       Expression `yaml:"return,omitempty"`
 }
 

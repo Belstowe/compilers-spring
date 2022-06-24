@@ -313,9 +313,9 @@ func (v *ANTLRRusterVisitor) VisitLiteralExpression(ctx *parser.LiteralExpressio
 func (v *ANTLRRusterVisitor) VisitStatements(ctx *parser.StatementsContext) interface{} {
 	var block BlockExpression
 
-	block.Statements = make([]Expression, 0)
+	block.Statements = make([]Statement, 0)
 	for _, e := range ctx.AllStatement() {
-		block.Statements = append(block.Statements, v.Visit(e).(Expression))
+		block.Statements = append(block.Statements, v.Visit(e).(Statement))
 	}
 
 	if ctx.Expression() == nil {
