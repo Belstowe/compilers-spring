@@ -120,8 +120,8 @@ type FuncAttr struct {
 
 func (fn FuncAttr) String() string {
 	callParamStrings := make([]string, len(fn.CallParam))
-	for _, param := range fn.CallParam {
-		callParamStrings = append(callParamStrings, param.String())
+	for i, param := range fn.CallParam {
+		callParamStrings[i] = param.String()
 	}
 	return fmt.Sprintf("{FUNCTION; ReturnType: %s; CallParam: %s}", fn.ReturnType, strings.Join(callParamStrings, "; "))
 }
@@ -135,6 +135,15 @@ func (nm NamespaceAttr) String() string {
 	return fmt.Sprintf("{NAMESPACE; External: %s}", nm.External)
 }
 
+type ReturnAttr struct {
+	TypeDef
+	Type TypeDef
+}
+
+func (ra ReturnAttr) String() string {
+	return fmt.Sprintf("{TO RETURN: %s}", ra.Type)
+}
+
 type Scope map[string]TypeDef
 
 func GetToType(t TypeDef) TypeDef {
@@ -145,6 +154,10 @@ func GetToType(t TypeDef) TypeDef {
 		return GetToType(attr.Type)
 	case FuncAttr:
 		return GetToType(attr.ReturnType)
+	case ReturnAttr:
+		return GetToType(attr.Type)
+	case IDAttr:
+		return GetToType(attr.TypeParam)
 	default:
 		return attr
 	}

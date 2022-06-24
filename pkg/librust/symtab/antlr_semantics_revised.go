@@ -2,6 +2,7 @@ package symtab
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/ast"
@@ -25,46 +26,98 @@ func (v *ANTLRSemVisitor) Visit(tree ast.Node) interface{} {
 }
 
 func (v *ANTLRSemVisitor) VisitCrate(c *ast.Crate) interface{} {
+	v.enterScope()
+	v.declare(IDAttr{
+		Name:      "",
+		TypeParam: TypeAttr{},
+	})
+	v.declare(IDAttr{
+		Name: "i8",
+		TypeParam: TypeAttr{
+			BaseType: "i8",
+		},
+	})
+	v.declare(IDAttr{
+		Name: "i64",
+		TypeParam: TypeAttr{
+			BaseType: "i64",
+		},
+	})
+	v.declare(IDAttr{
+		Name: "isize",
+		TypeParam: TypedefAttr{
+			Type: v.seeDeclared("i64"),
+		},
+	})
+	v.declare(IDAttr{
+		Name: "char",
+		TypeParam: TypedefAttr{
+			Type: v.seeDeclared("i8"),
+		},
+	})
+	v.declare(IDAttr{
+		Name: "str",
+		TypeParam: PointerAttr{
+			Volatile: false,
+			Type:     v.seeDeclared("char"),
+		},
+	})
+	v.declare(IDAttr{
+		Name: "ruster::writeln_i64",
+		TypeParam: FuncAttr{
+			ReturnType: TypeAttr{},
+			CallParam: []TypeDef{
+				TypeAttr{BaseType: "i64"},
+			},
+		},
+	})
+
 	for _, item := range c.Items {
 		item.Accept(v)
 	}
+	v.exitScope()
 	return nil
 }
 
 func (v *ANTLRSemVisitor) VisitBlockExpression(be *ast.BlockExpression) interface{} {
 	v.enterScope()
 
-	returnTypes := make([]IDAttr, 0)
+	returnTypes := make([]TypeDef, 0)
 	for _, ex := range be.Statements {
 		exReturn := ex.Accept(v)
 		if exReturn != nil {
-			returnTypes = append(returnTypes, exReturn.(IDAttr))
+			exReturnAttr := exReturn.(IDAttr)
+			switch toReturnAttr := exReturnAttr.TypeParam.(type) {
+			case ReturnAttr:
+				returnTypes = append(returnTypes, GetToType(toReturnAttr))
+			}
 		}
 	}
 	if be.Expr != nil {
-		returnTypes = append(returnTypes, be.Expr.Accept(v).(IDAttr))
+		returnTypes = append(returnTypes, GetToType(be.Expr.Accept(v).(IDAttr).TypeParam))
+	}
+	if len(returnTypes) == 0 {
+		returnTypes = append(returnTypes, TypeAttr{})
 	}
 
 	v.exitScope()
 
-	if len(returnTypes) == 0 {
-		return nil
-	}
-
 	returnTypeSet := make(map[TypeDef]struct{})
 	for _, rtp := range returnTypes {
-		returnTypeSet[rtp.TypeParam] = struct{}{}
+		returnTypeSet[rtp] = struct{}{}
 	}
 	if len(returnTypeSet) > 1 {
 		var setRepr string
 		setRepr += "{ "
 		for _, rtp := range returnTypes {
-			setRepr += rtp.String()
+			setRepr += rtp.String() + "; "
 		}
 		setRepr += " }"
 		v.log(ERROR, fmt.Sprintf("block expression returns several different types: %s", setRepr))
 	}
-	return returnTypes[len(returnTypes)-1]
+	return IDAttr{
+		TypeParam: returnTypes[len(returnTypes)-1],
+	}
 }
 
 func (v *ANTLRSemVisitor) VisitUseDecl(ud *ast.UseDecl) interface{} {
@@ -84,25 +137,23 @@ func (v *ANTLRSemVisitor) VisitSimplePath(sp *ast.SimplePath) interface{} {
 
 func (v *ANTLRSemVisitor) VisitParameter(p *ast.Parameter) interface{} {
 	return IDAttr{
-		Name:      p.ID,
-		TypeParam: p.VarType.Accept(v).(TypeDef),
+		Name: p.ID,
+		TypeParam: ValueAttr{
+			BaseType: p.VarType.Accept(v).(TypeDef),
+		},
 	}
 }
 
 func (v *ANTLRSemVisitor) VisitFunction(f *ast.Function) interface{} {
-	v.enterScope()
-
-	returnType := f.ReturnType.Accept(v).(TypeDef)
-	bodyReturnType := f.ReturnType.Accept(v).(IDAttr)
-	if returnType != bodyReturnType.TypeParam {
-		v.log(ERROR, fmt.Sprintf("function %s: claimed return type %s doesn't correlate with body return type %s", f.ID, returnType.String(), bodyReturnType.TypeParam.String()))
+	callParams := make([]TypeDef, len(f.Params))
+	for i, param := range f.Params {
+		paramAttr := param.Accept(v).(IDAttr)
+		callParams[i] = GetToType(paramAttr.TypeParam)
 	}
 
-	callParams := make([]TypeDef, 0)
-	for _, param := range f.Params {
-		paramAttr := param.Accept(v).(IDAttr)
-		v.declare(paramAttr)
-		callParams = append(callParams, paramAttr.TypeParam)
+	var returnType TypeDef = TypeAttr{}
+	if f.ReturnType != nil {
+		returnType = f.ReturnType.Accept(v).(TypeDef)
 	}
 
 	v.declare(IDAttr{
@@ -112,6 +163,18 @@ func (v *ANTLRSemVisitor) VisitFunction(f *ast.Function) interface{} {
 			CallParam:  callParams,
 		},
 	})
+
+	v.enterScope()
+
+	for _, param := range f.Params {
+		paramAttr := param.Accept(v).(IDAttr)
+		v.declare(paramAttr)
+	}
+
+	bodyReturnType := f.Body.Accept(v).(IDAttr)
+	if returnType != bodyReturnType.TypeParam {
+		v.log(ERROR, fmt.Sprintf("function %s: claimed return type %s doesn't correlate with body return type %s", f.ID, returnType.String(), bodyReturnType.TypeParam.String()))
+	}
 
 	v.exitScope()
 	return nil
@@ -293,7 +356,7 @@ func (v *ANTLRSemVisitor) VisitBinaryOperator(bo *ast.BinaryOperator) interface{
 			}
 		}
 	}
-	v.log(ERROR, fmt.Sprintf("binary operation unsupported types: %s %s %s", lhsReturnType.TypeParam.String(), bo.Op, rhsReturnType.TypeParam.String()))
+	v.log(ERROR, fmt.Sprintf("binary operation unsupported types: %s %s %s", lhsReturnType.String(), bo.Op, rhsReturnType.String()))
 	return nil
 }
 
@@ -306,7 +369,10 @@ func (v *ANTLRSemVisitor) VisitRangeOperator(ro *ast.RangeOperator) interface{} 
 }
 
 func (v *ANTLRSemVisitor) VisitReturnExpression(e *ast.ReturnExpression) interface{} {
-	return e.Expr.Accept(v)
+	return IDAttr{
+		TypeParam: ReturnAttr{
+			Type: e.Expr.Accept(v).(IDAttr).TypeParam,
+		}}
 }
 
 func (v *ANTLRSemVisitor) VisitContinueExpression(ce *ast.ContinueExpression) interface{} {
@@ -329,8 +395,8 @@ func (v *ANTLRSemVisitor) VisitTypeCastExpression(tce *ast.TypeCastExpression) i
 func (v *ANTLRSemVisitor) VisitCallExpression(ce *ast.CallExpression) interface{} {
 	fnId := ce.FnHeader.Accept(v).(IDAttr).Name
 	fnParams := make([]TypeDef, len(ce.Params))
-	for _, param := range []ast.Expression(ce.Params) {
-		fnParams = append(fnParams, GetToType(param.Accept(v).(IDAttr).TypeParam))
+	for i, param := range []ast.Expression(ce.Params) {
+		fnParams[i] = GetToType(param.Accept(v).(IDAttr).TypeParam)
 	}
 
 	if fnId == "" {
@@ -357,11 +423,14 @@ func (v *ANTLRSemVisitor) VisitCallExpression(ce *ast.CallExpression) interface{
 		v.logf(ERROR, "function %s got called for different type; its attributes are %s", fnId, varFound.String())
 		return nil
 	}
-	if fnCalled.TypeParam != varFound {
+	if !reflect.DeepEqual(fnCalled.TypeParam.(FuncAttr).CallParam, varFound.(FuncAttr).CallParam) {
 		v.logf(ERROR, "function %s called parameters %s differ from ones declared %s", fnId, fnCalled.TypeParam.String(), varFound.String())
 		return nil
 	}
-	return varFound.(FuncAttr).ReturnType
+
+	return IDAttr{
+		TypeParam: varFound.(FuncAttr).ReturnType,
+	}
 }
 
 func (v *ANTLRSemVisitor) VisitMethodCallExpression(mce *ast.MethodCallExpression) interface{} {
@@ -463,8 +532,8 @@ func (v *ANTLRSemVisitor) VisitPathPattern(pp *ast.PathPattern) interface{} {
 
 func (v *ANTLRSemVisitor) VisitTypePath(tp *ast.TypePath) interface{} {
 	segments := make([]string, len(*tp))
-	for _, segment := range *tp {
-		segments = append(segments, segment.Accept(v).(string))
+	for i, segment := range *tp {
+		segments[i] = segment.Accept(v).(string)
 	}
 
 	typeId := strings.Join(segments, "::")
@@ -582,17 +651,16 @@ var allowedUnaryOpTypes = map[string][]string{
 	"-": {"i8", "i16", "i32", "i64"},
 }
 
+var integerOperands = [][2]string{{"i8", "i8"}, {"i16", "i16"}, {"i32", "i32"}, {"i64", "i64"}, {"u8", "u8"}, {"u16", "u16"}, {"u32", "u32"}, {"u64", "u64"}}
+
 var allowedBinaryOpTypes = map[string][][2]string{
-	"-": {
-		{"i8", "i8"}, {"i16", "i16"}, {"i32", "i32"}, {"i64", "i64"}, {"u8", "u8"}, {"u16", "u16"}, {"u32", "u32"}, {"u64", "u64"},
-	},
-	"+": {
-		{"i8", "i8"}, {"i16", "i16"}, {"i32", "i32"}, {"i64", "i64"}, {"u8", "u8"}, {"u16", "u16"}, {"u32", "u32"}, {"u64", "u64"},
-	},
-	"*": {
-		{"i8", "i8"}, {"i16", "i16"}, {"i32", "i32"}, {"i64", "i64"}, {"u8", "u8"}, {"u16", "u16"}, {"u32", "u32"}, {"u64", "u64"},
-	},
-	"/": {
-		{"i8", "i8"}, {"i16", "i16"}, {"i32", "i32"}, {"i64", "i64"}, {"u8", "u8"}, {"u16", "u16"}, {"u32", "u32"}, {"u64", "u64"},
-	},
+	"-":  integerOperands,
+	"+":  integerOperands,
+	"*":  integerOperands,
+	"/":  integerOperands,
+	"<":  integerOperands,
+	">":  integerOperands,
+	"<=": integerOperands,
+	">=": integerOperands,
+	"==": integerOperands,
 }

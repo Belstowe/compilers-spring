@@ -6,5 +6,5 @@ fn factorial(n: i64) -> i64 {
 }
 
 fn main() {
-    ruster::writeln(factorial(10));
+    ruster::writeln_i64(factorial(10));
 }

@@ -356,11 +356,12 @@ func (v *ANTLRRusterVisitor) VisitCallParams(ctx *parser.CallParamsContext) inte
 }
 
 func (v *ANTLRRusterVisitor) VisitPathExpression(ctx *parser.PathExpressionContext) interface{} {
-	segments := make([]string, 0)
+	var expr PathExpression
+	expr.Segments = make(PathSegments, 0)
 	for _, e := range ctx.AllSimplePathSegment() {
-		segments = append(segments, v.Visit(e).(string))
+		expr.Segments = append(expr.Segments, v.Visit(e).(string))
 	}
-	return segments
+	return expr
 }
 
 func (v *ANTLRRusterVisitor) VisitIfExpression(ctx *parser.IfExpressionContext) interface{} {
@@ -507,7 +508,7 @@ func (v *ANTLRRusterVisitor) VisitTypePathSegment(ctx *parser.TypePathSegmentCon
 
 func (v *ANTLRRusterVisitor) VisitTypePathFn(ctx *parser.TypePathFnContext) interface{} {
 	var fn TypePathFunction
-	fn.Inputs = v.Visit(ctx.TypePathInputs()).([]Terminal)
+	fn.Inputs = v.Visit(ctx.TypePathInputs()).([]Type)
 	if ctx.ReturnType == nil {
 		fn.ReturnType = nil
 	} else {

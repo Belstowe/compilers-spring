@@ -2,8 +2,8 @@ package ast
 
 type TypePath []TypePathSegment
 
-func (tp *TypePath) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitTypePath(tp)
+func (tp TypePath) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTypePath(&tp)
 }
 
 type TypePathSegment struct {
@@ -11,25 +11,25 @@ type TypePathSegment struct {
 	Fn interface{} `yaml:"function-body,omitempty"`
 }
 
-func (tps *TypePathSegment) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitTypePathSegment(tps)
+func (tps TypePathSegment) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTypePathSegment(&tps)
 }
 
 type TypePathFunction struct {
-	Inputs     []Terminal
+	Inputs     []Type
 	ReturnType Type
 }
 
-func (tpf *TypePathFunction) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitTypePathFunction(tpf)
+func (tpf TypePathFunction) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTypePathFunction(&tpf)
 }
 
 type ParenthesizedType struct {
 	VarType Type `yaml:"type"`
 }
 
-func (pt *ParenthesizedType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitParenthesizedType(pt)
+func (pt ParenthesizedType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitParenthesizedType(&pt)
 }
 
 type PointerType struct {
@@ -37,8 +37,8 @@ type PointerType struct {
 	VarType Type `yaml:"type"`
 }
 
-func (pt *PointerType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitPointerType(pt)
+func (pt PointerType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitPointerType(&pt)
 }
 
 type ReferenceType struct {
@@ -46,16 +46,16 @@ type ReferenceType struct {
 	VarType Type `yaml:"type"`
 }
 
-func (rt *ReferenceType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitReferenceType(rt)
+func (rt ReferenceType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitReferenceType(&rt)
 }
 
 type TupleType struct {
 	Types []Type `yaml:"type"`
 }
 
-func (tt *TupleType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitTupleType(tt)
+func (tt TupleType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitTupleType(&tt)
 }
 
 type ArrayType struct {
@@ -63,26 +63,26 @@ type ArrayType struct {
 	Expr    Expression `yaml:"patternExpression"`
 }
 
-func (at *ArrayType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitArrayType(at)
+func (at ArrayType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitArrayType(&at)
 }
 
 type SliceType struct {
 	VarType Type `yaml:"type"`
 }
 
-func (st *SliceType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitSliceType(st)
+func (st SliceType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitSliceType(&st)
 }
 
 type NeverType struct{ Type }
 
-func (nt *NeverType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitNeverType(nt)
+func (nt NeverType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitNeverType(&nt)
 }
 
 type InferredType struct{ Type }
 
-func (it *InferredType) Accept(v RusterBaseVisitor) interface{} {
-	return v.VisitInferredType(it)
+func (it InferredType) Accept(v RusterBaseVisitor) interface{} {
+	return v.VisitInferredType(&it)
 }
