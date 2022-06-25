@@ -38,6 +38,12 @@ func (v *ANTLRSemVisitor) VisitCrate(c *ast.Crate) interface{} {
 		},
 	})
 	v.declare(IDAttr{
+		Name: "i32",
+		TypeParam: TypeAttr{
+			BaseType: "i32",
+		},
+	})
+	v.declare(IDAttr{
 		Name: "i64",
 		TypeParam: TypeAttr{
 			BaseType: "i64",
@@ -199,7 +205,30 @@ out:
 			return nil
 		}
 	}
-	*lastType = ls.VarType.Accept(v).(TypeDef)
+
+	if ls.Expr == nil && ls.VarType == nil {
+		v.logf(ERROR, "No fields to determine var %s type!", idDeclared.Name)
+		return nil
+	}
+
+	var exprReturnType TypeDef = nil
+	if ls.Expr != nil {
+		exprReturnType = GetToType(ls.Expr.Accept(v).(IDAttr))
+	}
+	var declaredType TypeDef = nil
+	if ls.VarType != nil {
+		declaredType = GetToType(ls.VarType.Accept(v).(TypeDef))
+	}
+	if declaredType != nil && exprReturnType != nil {
+		if declaredType != exprReturnType {
+			v.logf(ERROR, "%s type contradiction: declared type is %s; expression return type is %s", idDeclared.Name, declaredType.String(), exprReturnType.String())
+			return nil
+		}
+	}
+	if declaredType == nil {
+		declaredType = exprReturnType
+	}
+	*lastType = declaredType
 
 	v.declare(idDeclared)
 	return nil
