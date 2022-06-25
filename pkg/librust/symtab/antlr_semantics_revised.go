@@ -429,7 +429,9 @@ func (v *ANTLRSemVisitor) VisitCallExpression(ce *ast.CallExpression) interface{
 	}
 
 	return IDAttr{
-		TypeParam: varFound.(FuncAttr).ReturnType,
+		TypeParam: ValueAttr{
+			BaseType: varFound.(FuncAttr).ReturnType,
+		},
 	}
 }
 

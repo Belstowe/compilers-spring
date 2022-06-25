@@ -13,6 +13,7 @@ import (
 func TestCorrectCode(t *testing.T) {
 	examples := []string{
 		"../../../examples/factorial.rs",
+		"../../../examples/fibonacci.rs",
 	}
 
 	for _, example_path := range examples {
