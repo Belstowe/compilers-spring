@@ -1,4 +1,4 @@
-package symtab
+package semantics
 
 import (
 	"bufio"
@@ -12,9 +12,8 @@ import (
 
 func TestCorrectCode(t *testing.T) {
 	examples := []string{
-		"../../../examples/find_substr.rs",
-		"../../../examples/gcd.rs",
-		"../../../examples/min.rs",
+		"../../../examples/factorial.rs",
+		"../../../examples/fibonacci.rs",
 	}
 
 	for _, example_path := range examples {
@@ -55,8 +54,8 @@ func TestFlawedCode(t *testing.T) {
 
 func TestSlightlyFlawedCode(t *testing.T) {
 	examples := []string{
-		"../../../examples/invalid/semantics/redefine_std.rs",
 		"../../../examples/invalid/semantics/redefine_upperscope.rs",
+		"../../../examples/invalid/semantics/redefine_std.rs",
 	}
 
 	for _, example_path := range examples {

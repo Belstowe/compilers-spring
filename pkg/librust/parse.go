@@ -6,7 +6,7 @@ import (
 
 	"github.com/Compiler2022/compilers-1-Belstowe/parser"
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/ast"
-	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/symtab"
+	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/semantics"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 	"gopkg.in/yaml.v3"
 )
@@ -88,17 +88,18 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 		return
 	}
 
-	if to_dump_ast {
-		builder := ast.NewANTLRRusterVisitor()
-		ast := builder.Visit(parseTree).(ast.Crate)
+	builder := ast.NewANTLRRusterVisitor()
+	ast := builder.Visit(parseTree).(ast.Crate)
 
+	if to_dump_ast {
 		DumpAST(ast, out)
 	}
 
-	symtabBuilder := symtab.NewANTLRSymtabVisitor()
-	logs := symtabBuilder.Visit(parseTree).([]symtab.Message)
-	for _, log := range logs {
-		if log.Type == symtab.INFO && !verbose {
+	symtabBuilder := semantics.NewANTLRSemVisitor()
+	ast.Accept(symtabBuilder)
+
+	for _, log := range symtabBuilder.DumpLogs().([]semantics.Message) {
+		if log.Type == semantics.INFO && !verbose {
 			continue
 		}
 		_, err := out.Write([]byte(log.String() + "\n"))
