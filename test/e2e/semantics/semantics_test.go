@@ -1,4 +1,4 @@
-package symtab
+package semantics
 
 import (
 	"bufio"
