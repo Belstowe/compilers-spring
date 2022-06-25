@@ -6,18 +6,22 @@ import (
 	"strings"
 
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/ast"
+	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/types"
 )
 
 type ANTLRSemVisitor struct {
 	ast.RusterBaseVisitor
 	scopes []Scope
 	logs   []Message
+	irm    *ir.Module
 }
 
 func NewANTLRSemVisitor() ast.RusterBaseVisitor {
 	return &ANTLRSemVisitor{
 		scopes: make([]Scope, 0),
 		logs:   make([]Message, 0),
+		irm:    ir.NewModule(),
 	}
 }
 
@@ -29,24 +33,54 @@ func (v *ANTLRSemVisitor) VisitCrate(c *ast.Crate) interface{} {
 	v.enterScope()
 	v.declare(IDAttr{
 		Name:      "",
-		TypeParam: TypeAttr{},
+		TypeParam: TypeAttr{BaseType: types.Void},
+	})
+	v.declare(IDAttr{
+		Name: "u8",
+		TypeParam: TypeAttr{
+			BaseType: types.I8,
+		},
+	})
+	v.declare(IDAttr{
+		Name: "u16",
+		TypeParam: TypeAttr{
+			BaseType: types.I16,
+		},
+	})
+	v.declare(IDAttr{
+		Name: "u32",
+		TypeParam: TypeAttr{
+			BaseType: types.I32,
+		},
+	})
+	v.declare(IDAttr{
+		Name: "u64",
+		TypeParam: TypeAttr{
+			BaseType: types.I64,
+		},
 	})
 	v.declare(IDAttr{
 		Name: "i8",
 		TypeParam: TypeAttr{
-			BaseType: "i8",
+			BaseType: types.I8,
+		},
+	})
+	v.declare(IDAttr{
+		Name: "i16",
+		TypeParam: TypeAttr{
+			BaseType: types.I16,
 		},
 	})
 	v.declare(IDAttr{
 		Name: "i32",
 		TypeParam: TypeAttr{
-			BaseType: "i32",
+			BaseType: types.I32,
 		},
 	})
 	v.declare(IDAttr{
 		Name: "i64",
 		TypeParam: TypeAttr{
-			BaseType: "i64",
+			BaseType: types.I64,
 		},
 	})
 	v.declare(IDAttr{
@@ -71,9 +105,9 @@ func (v *ANTLRSemVisitor) VisitCrate(c *ast.Crate) interface{} {
 	v.declare(IDAttr{
 		Name: "ruster::writeln_i64",
 		TypeParam: FuncAttr{
-			ReturnType: TypeAttr{},
+			ReturnType: TypeAttr{BaseType: types.Void},
 			CallParam: []TypeDef{
-				TypeAttr{BaseType: "i64"},
+				TypeAttr{BaseType: types.I64},
 			},
 		},
 	})
@@ -103,7 +137,7 @@ func (v *ANTLRSemVisitor) VisitBlockExpression(be *ast.BlockExpression) interfac
 		returnTypes = append(returnTypes, GetToType(be.Expr.Accept(v).(IDAttr).TypeParam))
 	}
 	if len(returnTypes) == 0 {
-		returnTypes = append(returnTypes, TypeAttr{})
+		returnTypes = append(returnTypes, v.seeDeclared(""))
 	}
 
 	v.exitScope()
@@ -157,7 +191,7 @@ func (v *ANTLRSemVisitor) VisitFunction(f *ast.Function) interface{} {
 		callParams[i] = GetToType(paramAttr.TypeParam)
 	}
 
-	var returnType TypeDef = TypeAttr{}
+	var returnType TypeDef = v.seeDeclared("")
 	if f.ReturnType != nil {
 		returnType = f.ReturnType.Accept(v).(TypeDef)
 	}
@@ -240,22 +274,14 @@ func (v *ANTLRSemVisitor) VisitLiteralExpression(le *ast.LiteralExpression) inte
 	case ast.String:
 		tp = ArrayAttr{
 			NumOfElem: len(le.Val),
-			Type: TypeAttr{
-				BaseType: "i8",
-			},
+			Type:      v.seeDeclared("i8"),
 		}
 	case ast.Boolean:
-		tp = TypeAttr{
-			BaseType: "i8",
-		}
+		tp = v.seeDeclared("i8")
 	case ast.Char:
-		tp = TypeAttr{
-			BaseType: "i8",
-		}
+		tp = v.seeDeclared("i8")
 	case ast.Integer:
-		tp = TypeAttr{
-			BaseType: "i64",
-		}
+		tp = v.seeDeclared("i64")
 	}
 
 	return IDAttr{
@@ -355,7 +381,7 @@ func (v *ANTLRSemVisitor) VisitUnaryOperator(uo *ast.UnaryOperator) interface{} 
 	switch tp := exprReturnType.TypeParam.(type) {
 	case ValueAttr:
 		for _, allowedType := range allowedUnaryOpTypes[uo.Op] {
-			var allowedTypeAttr TypeDef = TypeAttr{BaseType: allowedType}
+			var allowedTypeAttr TypeDef = v.seeDeclared(allowedType)
 			if GetToType(tp.BaseType) == allowedTypeAttr {
 				return exprReturnType
 			}
@@ -377,8 +403,8 @@ func (v *ANTLRSemVisitor) VisitBinaryOperator(bo *ast.BinaryOperator) interface{
 		switch rhsTp := rhsReturnType.TypeParam.(type) {
 		case ValueAttr:
 			for _, allowedTypes := range allowedBinaryOpTypes[bo.Op] {
-				var lhsAllowedAttr = TypeAttr{BaseType: allowedTypes[0]}
-				var rhsAllowedAttr = TypeAttr{BaseType: allowedTypes[1]}
+				var lhsAllowedAttr = v.seeDeclared(allowedTypes[0])
+				var rhsAllowedAttr = v.seeDeclared(allowedTypes[1])
 				if GetToType(lhsTp.BaseType) == lhsAllowedAttr && GetToType(rhsTp.BaseType) == rhsAllowedAttr {
 					return lhsReturnType
 				}
@@ -483,7 +509,7 @@ func (v *ANTLRSemVisitor) VisitArrayIndexExpression(aie *ast.ArrayIndexExpressio
 
 	correctIndexType := false
 	for _, allowedIndexType := range []string{"i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64"} {
-		allowedAttr := TypeAttr{BaseType: allowedIndexType}
+		allowedAttr := v.seeDeclared(allowedIndexType)
 		if GetToType(indexTaken) == allowedAttr {
 			correctIndexType = true
 			break
@@ -517,22 +543,14 @@ func (v *ANTLRSemVisitor) VisitLiteralPattern(lp *ast.LiteralPattern) interface{
 	case ast.String:
 		tp = ArrayAttr{
 			NumOfElem: len(lp.Val),
-			Type: TypeAttr{
-				BaseType: "i8",
-			},
+			Type:      v.seeDeclared("i8"),
 		}
 	case ast.Boolean:
-		tp = TypeAttr{
-			BaseType: "i8",
-		}
+		tp = v.seeDeclared("i8")
 	case ast.Char:
-		tp = TypeAttr{
-			BaseType: "i8",
-		}
+		tp = v.seeDeclared("i8")
 	case ast.Integer:
-		tp = TypeAttr{
-			BaseType: "i64",
-		}
+		tp = v.seeDeclared("i64")
 	}
 
 	return IDAttr{
@@ -572,9 +590,7 @@ func (v *ANTLRSemVisitor) VisitTypePath(tp *ast.TypePath) interface{} {
 		v.logf(ERROR, "unknown type %s", typeId)
 		return nil
 	}
-	return TypeAttr{
-		BaseType: typeId,
-	}
+	return v.seeDeclared(typeId)
 }
 
 func (v *ANTLRSemVisitor) VisitTypePathSegment(tps *ast.TypePathSegment) interface{} {

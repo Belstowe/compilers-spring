@@ -3,6 +3,8 @@ package semantics
 import (
 	"fmt"
 	"strings"
+
+	"github.com/llir/llvm/ir/types"
 )
 
 type MessageType int
@@ -76,7 +78,7 @@ func (rf RefAttr) String() string {
 
 type TypeAttr struct {
 	TypeDef
-	BaseType string
+	BaseType types.Type
 }
 
 func (tp TypeAttr) String() string {
