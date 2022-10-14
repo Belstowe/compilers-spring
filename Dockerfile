@@ -1,6 +1,6 @@
 FROM golang:1.17-alpine
 
-RUN apk add --no-cache bash openjdk11-jre
+RUN apk add --no-cache bash openjdk11-jre curl
 
 WORKDIR /opt/ruster/
 COPY . .
