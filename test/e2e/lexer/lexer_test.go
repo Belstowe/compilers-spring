@@ -14,7 +14,7 @@ func TestCorrectCode(t *testing.T) {
 	examples := []string{
 		"../../../examples/factorial.rs",
 		"../../../examples/fibonacci.rs",
-		"../../../examples/gcd.rs",
+		"../../../examples/old/gcd.rs",
 	}
 
 	for _, example_path := range examples {
