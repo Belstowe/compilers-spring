@@ -259,7 +259,10 @@ out:
 	if declaredType == nil {
 		declaredType = exprReturnType
 	}
-	*lastType = declaredType
+	idDeclared.TypeParam = ValueAttr{
+		Volatile: false,
+		BaseType: declaredType,
+	}
 
 	v.declare(idDeclared)
 	return nil
@@ -409,7 +412,7 @@ func (v *ANTLRSemVisitor) VisitBinaryOperator(bo *ast.BinaryOperator) interface{
 		}
 	}
 	v.log(ERROR, fmt.Sprintf("binary operation unsupported types: %s %s %s", lhsReturnType.String(), bo.Op, rhsReturnType.String()))
-	return nil
+	return lhsReturnType
 }
 
 func (v *ANTLRSemVisitor) VisitRHSRangeOperator(rro *ast.RHSRangeOperator) interface{} {
@@ -707,4 +710,5 @@ var allowedBinaryOpTypes = map[string][][2]string{
 	"<=": integerOperands,
 	">=": integerOperands,
 	"==": integerOperands,
+	"=":  integerOperands,
 }

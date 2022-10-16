@@ -86,6 +86,15 @@ func (c LLVMContext) lookupVariable(name string) value.Value {
 	}
 }
 
+func (c *LLVMContext) getVariableValue(v value.Value) value.Value {
+	switch vtype := v.(type) {
+	case *ir.InstAlloca:
+		return c.NewLoad(vtype.Typ.ElemType, vtype)
+	default:
+		return vtype
+	}
+}
+
 func (c LLVMContext) callFunction(name string, args ...value.Value) value.Value {
 	if _, ok := c.fn[name]; !ok {
 		panic(fmt.Sprintf("no such function: %s", name))
@@ -113,7 +122,7 @@ func (ctx *LLVMContext) VisitBlockExpression(be *ast.BlockExpression) interface{
 		ctx.Visit(stmt)
 	}
 	if be.Expr != nil {
-		return ctx.NewRet(ctx.Visit(be.Expr).(value.Value))
+		return ctx.NewRet(ctx.getVariableValue(ctx.Visit(be.Expr).(value.Value)))
 	}
 	return nil
 }
@@ -176,7 +185,8 @@ func (c *LLVMContext) VisitLiteralExpression(le *ast.LiteralExpression) interfac
 }
 
 func (c *LLVMContext) VisitPathExpression(pe *ast.PathExpression) interface{} {
-	return c.lookupVariable(strings.Join([]string(pe.Segments), "::"))
+	v := c.lookupVariable(strings.Join([]string(pe.Segments), "::"))
+	return v
 }
 
 func (c *LLVMContext) VisitIfExpression(ie *ast.IfExpression) interface{} {
@@ -234,7 +244,8 @@ func (c *LLVMContext) VisitIteratorLoopExpression(ile *ast.IteratorLoopExpressio
 }
 
 func (c *LLVMContext) VisitUnaryOperator(uo *ast.UnaryOperator) interface{} {
-	val := c.Visit(uo.Val).(value.Value)
+	v := c.Visit(uo.Val).(value.Value)
+	val := c.getVariableValue(v)
 	switch uo.Op {
 	case "!":
 		val = c.NewXor(val, constant.NewInt(types.I1, 1))
@@ -247,58 +258,64 @@ func (c *LLVMContext) VisitUnaryOperator(uo *ast.UnaryOperator) interface{} {
 func (c *LLVMContext) VisitBinaryOperator(bo *ast.BinaryOperator) interface{} {
 	lhs := c.Visit(bo.LHS).(value.Value)
 	rhs := c.Visit(bo.RHS).(value.Value)
-	if types.IsFloat(rhs.Type()) {
+	lhsv := c.getVariableValue(lhs)
+	rhsv := c.getVariableValue(rhs)
+	if types.IsFloat(rhsv.Type()) {
 		switch bo.Op {
 		case "-":
-			return c.NewFSub(lhs, rhs)
+			return c.NewFSub(lhsv, rhsv)
 		case "+":
-			return c.NewFAdd(lhs, rhs)
+			return c.NewFAdd(lhsv, rhsv)
 		case "/":
-			return c.NewFDiv(lhs, rhs)
+			return c.NewFDiv(lhsv, rhsv)
 		case "*":
-			return c.NewFMul(lhs, rhs)
+			return c.NewFMul(lhsv, rhsv)
 		case "<":
-			return c.NewFCmp(enum.FPredOLT, lhs, rhs)
+			return c.NewFCmp(enum.FPredOLT, lhsv, rhsv)
 		case ">":
-			return c.NewFCmp(enum.FPredOGT, lhs, rhs)
+			return c.NewFCmp(enum.FPredOGT, lhsv, rhsv)
 		case "<=":
-			return c.NewFCmp(enum.FPredOLE, lhs, rhs)
+			return c.NewFCmp(enum.FPredOLE, lhsv, rhsv)
 		case ">=":
-			return c.NewFCmp(enum.FPredOGE, lhs, rhs)
+			return c.NewFCmp(enum.FPredOGE, lhsv, rhsv)
 		case "==":
-			return c.NewFCmp(enum.FPredOEQ, lhs, rhs)
+			return c.NewFCmp(enum.FPredOEQ, lhsv, rhsv)
 		case "!=":
-			return c.NewFCmp(enum.FPredONE, lhs, rhs)
+			return c.NewFCmp(enum.FPredONE, lhsv, rhsv)
+		case "=":
+			return c.NewStore(rhsv, lhs.(*ir.InstAlloca))
 		}
-	} else if types.IsInt(rhs.Type()) {
+	} else if types.IsInt(rhsv.Type()) {
 		switch bo.Op {
 		case "-":
-			return c.NewSub(lhs, rhs)
+			return c.NewSub(lhsv, rhsv)
 		case "+":
-			return c.NewAdd(lhs, rhs)
+			return c.NewAdd(lhsv, rhsv)
 		case "/":
-			return c.NewSDiv(lhs, rhs)
+			return c.NewSDiv(lhsv, rhsv)
 		case "*":
-			return c.NewMul(lhs, rhs)
+			return c.NewMul(lhsv, rhsv)
 		case "<":
-			return c.NewICmp(enum.IPredSLT, lhs, rhs)
+			return c.NewICmp(enum.IPredSLT, lhsv, rhsv)
 		case ">":
-			return c.NewICmp(enum.IPredSGT, lhs, rhs)
+			return c.NewICmp(enum.IPredSGT, lhsv, rhsv)
 		case "<=":
-			return c.NewICmp(enum.IPredSLE, lhs, rhs)
+			return c.NewICmp(enum.IPredSLE, lhsv, rhsv)
 		case ">=":
-			return c.NewICmp(enum.IPredSGE, lhs, rhs)
+			return c.NewICmp(enum.IPredSGE, lhsv, rhsv)
 		case "==":
-			return c.NewICmp(enum.IPredEQ, lhs, rhs)
+			return c.NewICmp(enum.IPredEQ, lhsv, rhsv)
 		case "!=":
-			return c.NewICmp(enum.IPredNE, lhs, rhs)
+			return c.NewICmp(enum.IPredNE, lhsv, rhsv)
+		case "=":
+			return c.NewStore(rhsv, lhs.(*ir.InstAlloca))
 		}
 	}
 	return lhs
 }
 
 func (c *LLVMContext) VisitReturnExpression(e *ast.ReturnExpression) interface{} {
-	return c.NewRet(c.Visit(e.Expr).(value.Value))
+	return c.NewRet(c.getVariableValue(c.Visit(e.Expr).(value.Value)))
 }
 
 func (c *LLVMContext) VisitBreakExpression(be *ast.BreakExpression) interface{} {

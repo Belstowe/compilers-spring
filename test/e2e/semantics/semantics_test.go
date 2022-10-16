@@ -12,8 +12,9 @@ import (
 
 func TestCorrectCode(t *testing.T) {
 	examples := []string{
-		"../../../examples/factorial.rs",
-		"../../../examples/fibonacci.rs",
+		//"../../../examples/factorial.rs",
+		//"../../../examples/fibonacci.rs",
+		"../../../examples/factorial_while.rs",
 	}
 
 	for _, example_path := range examples {
@@ -22,7 +23,7 @@ func TestCorrectCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), nil, buf, false, false, false, true)
+		librust.Parse(bufio.NewReader(example_data), nil, buf, false, false, true, true)
 		for _, line := range strings.Split(buf.String(), "\n") {
 			if strings.Contains(line, "WARN") || strings.Contains(line, "ERROR") {
 				t.Errorf("[%s] %s", example_path, line)
