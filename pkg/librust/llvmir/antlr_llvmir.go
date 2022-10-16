@@ -28,10 +28,15 @@ type LLVMContext struct {
 }
 
 func NewLLVMTopContext() *LLVMTopContext {
-	return &LLVMTopContext{
+	tc := &LLVMTopContext{
 		Module: ir.NewModule(),
 		fn:     make(map[string]*ir.Func),
 	}
+	printf := tc.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
+	printf.Sig.Variadic = true
+	writeln_i64 := tc.NewFunction("ruster::writeln_i64", types.Void, ir.NewParam("x", types.I64))
+	writeln_i64.NewCall(printf, constant.NewCharArrayFromString("%ld"), writeln_i64.NewLoad(types.I64, writeln_i64.Parent.Params[0]))
+	return tc
 }
 
 func (tc *LLVMTopContext) NewFunction(name string, retType types.Type, params ...*ir.Param) *LLVMContext {
