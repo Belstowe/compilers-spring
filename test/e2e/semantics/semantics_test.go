@@ -22,7 +22,7 @@ func TestCorrectCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), buf, false, false, true)
+		librust.Parse(bufio.NewReader(example_data), nil, buf, false, false, false, true)
 		for _, line := range strings.Split(buf.String(), "\n") {
 			if strings.Contains(line, "WARN") || strings.Contains(line, "ERROR") {
 				t.Errorf("[%s] %s", example_path, line)
@@ -44,7 +44,7 @@ func TestFlawedCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), buf, false, false, false)
+		librust.Parse(bufio.NewReader(example_data), nil, buf, false, false, false, false)
 
 		if !strings.Contains(buf.String(), "ERROR") {
 			t.Errorf("[%s] Should have delivered ERROR message, but hasn't.", example_path)
@@ -64,7 +64,7 @@ func TestSlightlyFlawedCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), buf, false, false, false)
+		librust.Parse(bufio.NewReader(example_data), nil, buf, false, false, false, false)
 
 		if !strings.Contains(buf.String(), "WARN") {
 			t.Errorf("[%s] Should have delivered WARN message, but hasn't.", example_path)

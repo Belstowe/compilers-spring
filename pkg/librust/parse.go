@@ -56,7 +56,7 @@ func (g *TokenVocabulary) LLVMFormat(token *antlr.Token) string {
 		(*token).GetText())
 }
 
-func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, verbose bool) {
+func Parse(in io.Reader, out io.Writer, logstr io.Writer, to_dump_tokens bool, to_dump_ast bool, to_dump_asm bool, verbose bool) {
 	b, err := io.ReadAll(in)
 	if err != nil {
 		panic(err)
@@ -68,7 +68,7 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 	if to_dump_tokens {
 		var vocabulary TokenVocabulary = lexer.GetSymbolicNames()
 		for _, token := range lexer.GetAllTokens() {
-			_, err := out.Write([]byte(vocabulary.LLVMFormat(&token)))
+			_, err := logstr.Write([]byte(vocabulary.LLVMFormat(&token)))
 			if err != nil {
 				panic(err)
 			}
@@ -86,7 +86,7 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 	parseTree := p.Crate()
 
 	if sel.HasErrors() {
-		DumpErrors(sel.Errors(), out)
+		DumpErrors(sel.Errors(), logstr)
 		return
 	}
 
@@ -94,7 +94,7 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 	ast := builder.Visit(parseTree).(ast.Crate)
 
 	if to_dump_ast {
-		DumpAST(ast, out)
+		DumpAST(ast, logstr)
 	}
 
 	symtabBuilder := semantics.NewANTLRSemVisitor()
@@ -108,19 +108,32 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 		if log.Type == semantics.ERROR {
 			numOfErrors += 1
 		}
-		_, err := out.Write([]byte(log.String() + "\n"))
+		_, err := logstr.Write([]byte(log.String() + "\n"))
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	if numOfErrors != 0 {
-		out.Write([]byte(fmt.Sprintf("Semantics analyzer found %d errors, can't continue.", numOfErrors)))
+		logstr.Write([]byte(fmt.Sprintf("Semantics analyzer found %d errors, can't continue.", numOfErrors)))
+		return
+	}
+
+	if out == nil && !to_dump_asm {
 		return
 	}
 
 	llvmctx := llvmir.NewLLVMContext()
-	fmt.Println(llvmctx.Visit(ast).(*ir.Module))
+	irm := llvmctx.Visit(ast).(*ir.Module)
+	if to_dump_asm {
+		irm.WriteTo(logstr)
+	}
+	if out != nil {
+		_, err := irm.WriteTo(out)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func DumpErrors(errors []Error, out io.Writer) {

@@ -23,7 +23,7 @@ func TestCorrectCode(t *testing.T) {
 			t.Fatalf("[%s] Couldn't open file, reason: %v", example_path, err)
 		}
 		buf := bytes.NewBufferString("")
-		librust.Parse(bufio.NewReader(example_data), buf, true, false, false)
+		librust.Parse(bufio.NewReader(example_data), nil, buf, true, false, false, false)
 		for _, line := range strings.Split(buf.String(), "\n") {
 			if strings.Contains(line, "error") {
 				t.Errorf("[%s] %s", example_path, line)
