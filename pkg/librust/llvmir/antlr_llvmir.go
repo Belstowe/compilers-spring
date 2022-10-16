@@ -35,9 +35,13 @@ func NewLLVMTopContext() *LLVMTopContext {
 	printf := tc.NewFunc("printf", types.I32, ir.NewParam("", types.NewPointer(types.I8)))
 	printf.Sig.Variadic = true
 	writeln_i64 := tc.NewFunction("ruster::writeln_i64", types.Void, ir.NewParam("x", types.I64))
-	fmtStr := tc.NewGlobalDef("i64_fmt", constant.NewCharArrayFromString("%ld\n"))
-	writeln_i64.NewCall(printf, writeln_i64.NewGetElementPtr(types.NewArray(uint64(4), types.I8), fmtStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)), writeln_i64.Parent.Params[0])
+	i64_fmtStr := tc.NewGlobalDef("i64_fmt", constant.NewCharArrayFromString("%ld\n"))
+	writeln_i64.NewCall(printf, writeln_i64.NewGetElementPtr(types.NewArray(uint64(4), types.I8), i64_fmtStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)), writeln_i64.Parent.Params[0])
 	writeln_i64.NewRet(nil)
+	writeln_char := tc.NewFunction("ruster::writeln_char", types.Void, ir.NewParam("x", types.I8))
+	char_fmtStr := tc.NewGlobalDef("i8_fmt", constant.NewCharArrayFromString("%c\n"))
+	writeln_char.NewCall(printf, writeln_char.NewGetElementPtr(types.NewArray(uint64(4), types.I8), char_fmtStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)), writeln_char.Parent.Params[0])
+	writeln_char.NewRet(nil)
 	return tc
 }
 
@@ -154,11 +158,23 @@ func (c *LLVMContext) VisitFunction(f *ast.Function) interface{} {
 }
 
 func (c *LLVMContext) VisitLetStatement(ls *ast.LetStatement) interface{} {
-	v := c.NewAlloca(c.Visit(ls.VarType).(types.Type))
-	if ls.Expr != nil {
-		c.NewStore(c.Visit(ls.Expr).(value.Value), v)
+	tp := c.Visit(ls.VarType)
+	switch specType := tp.(type) {
+	case string:
+		strValue := c.Visit(ls.Expr).(value.Value)
+		v := c.NewAlloca(strValue.Type())
+		c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
+		for i := 0; i < int(strValue.Type().(*types.ArrayType).Len); i++ {
+			pToElem := c.NewGetElementPtr(strValue.Type(), v, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(i)))
+			c.NewStore(constant.NewInt(types.I8, int64('b')), pToElem)
+		}
+	case types.Type:
+		v := c.NewAlloca(specType)
+		if ls.Expr != nil {
+			c.NewStore(c.Visit(ls.Expr).(value.Value), v)
+		}
+		c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
 	}
-	c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
 	return nil
 }
 
@@ -344,7 +360,7 @@ func (c *LLVMContext) VisitBorrowExpression(be *ast.BorrowExpression) interface{
 }
 
 func (c *LLVMContext) VisitArrayIndexExpression(aie *ast.ArrayIndexExpression) interface{} {
-	indexStr := c.NewLoad(types.I64, c.Visit(aie.Index).(value.Value)).Ident()
+	indexStr := c.NewLoad(types.I64, c.Visit(aie.Index).(value.Value)).String()
 	if index, err := strconv.Atoi(indexStr); err == nil {
 		obj := c.Visit(aie.Index).(value.Value)
 		return c.NewExtractValue(obj, uint64(index))
@@ -400,7 +416,7 @@ func (c *LLVMContext) VisitTypePath(tp *ast.TypePath) interface{} {
 	case "u128":
 		return types.I128
 	case "str":
-		return types.NewArray(64, types.I8)
+		return ""
 	}
 	return types.Void
 }

@@ -98,7 +98,6 @@ func Parse(in io.Reader, out io.Writer, logstr io.Writer, to_dump_tokens bool, t
 	}
 
 	symtabBuilder := semantics.NewANTLRSemVisitor()
-	ast.Accept(symtabBuilder)
 
 	numOfErrors := 0
 	for _, log := range symtabBuilder.DumpLogs().([]semantics.Message) {

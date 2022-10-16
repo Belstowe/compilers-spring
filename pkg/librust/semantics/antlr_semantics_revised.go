@@ -108,6 +108,15 @@ func (v *ANTLRSemVisitor) VisitCrate(c *ast.Crate) interface{} {
 			},
 		},
 	})
+	v.declare(IDAttr{
+		Name: "ruster::writeln_char",
+		TypeParam: FuncAttr{
+			ReturnType: TypeAttr{BaseType: types.Void},
+			CallParam: []TypeDef{
+				TypeAttr{BaseType: types.I8},
+			},
+		},
+	})
 
 	for _, item := range c.Items {
 		item.Accept(v)
