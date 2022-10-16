@@ -40,7 +40,7 @@ func NewLLVMTopContext() *LLVMTopContext {
 	writeln_i64.NewRet(nil)
 	writeln_char := tc.NewFunction("ruster::writeln_char", types.Void, ir.NewParam("x", types.I8))
 	char_fmtStr := tc.NewGlobalDef("i8_fmt", constant.NewCharArrayFromString("%c\n"))
-	writeln_char.NewCall(printf, writeln_char.NewGetElementPtr(types.NewArray(uint64(4), types.I8), char_fmtStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)), writeln_char.Parent.Params[0])
+	writeln_char.NewCall(printf, writeln_char.NewGetElementPtr(types.NewArray(uint64(3), types.I8), char_fmtStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)), writeln_char.Parent.Params[0])
 	writeln_char.NewRet(nil)
 	return tc
 }
