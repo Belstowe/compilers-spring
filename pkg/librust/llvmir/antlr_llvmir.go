@@ -36,18 +36,23 @@ func NewLLVMTopContext() *LLVMTopContext {
 	printf.Sig.Variadic = true
 	writeln_i64 := tc.NewFunction("ruster::writeln_i64", types.Void, ir.NewParam("x", types.I64))
 	writeln_i64.NewCall(printf, constant.NewCharArrayFromString("%ld"), writeln_i64.NewLoad(types.I64, writeln_i64.Parent.Params[0]))
+	writeln_i64.NewRet(nil)
 	return tc
 }
 
 func (tc *LLVMTopContext) NewFunction(name string, retType types.Type, params ...*ir.Param) *LLVMContext {
-	tc.fn[name] = ir.NewFunc(name, retType, params...)
+	tc.fn[name] = tc.NewFunc(name, retType, params...)
 	b := tc.fn[name].NewBlock("")
-	return &LLVMContext{
+	ctx := &LLVMContext{
 		Block:          b,
 		LLVMTopContext: tc,
 		parent:         nil,
 		vars:           make(map[string]value.Value),
 	}
+	for i, param := range params {
+		ctx.vars[param.Name()] = tc.fn[name].Params[i]
+	}
+	return ctx
 }
 
 func NewLLVMContext() *LLVMContext {
@@ -73,6 +78,8 @@ func (c LLVMContext) lookupVariable(name string) value.Value {
 		return v
 	} else if c.parent != nil {
 		return c.parent.lookupVariable(name)
+	} else if _, ok = c.fn[name]; ok {
+		return c.fn[name]
 	} else {
 		panic(fmt.Sprintf("no such variable: %s", name))
 	}
@@ -97,7 +104,7 @@ func (ctx *LLVMContext) VisitCrate(c *ast.Crate) interface{} {
 	for _, item := range c.Items {
 		ctx.Visit(item)
 	}
-	return ctx.String()
+	return ctx.Module
 }
 
 func (ctx *LLVMContext) VisitBlockExpression(be *ast.BlockExpression) interface{} {
@@ -123,8 +130,14 @@ func (c *LLVMContext) VisitFunction(f *ast.Function) interface{} {
 	for _, param := range f.Params {
 		params = append(params, c.Visit(param).(*ir.Param))
 	}
-	newc := c.NewFunction(f.ID, c.Visit(f.ReturnType).(types.Type), params...)
+	var newc *LLVMContext
+	if f.ReturnType == nil {
+		newc = c.NewFunction(f.ID, types.Void, params...)
+	} else {
+		newc = c.NewFunction(f.ID, c.Visit(f.ReturnType).(types.Type), params...)
+	}
 	newc.Visit(f.Body)
+	newc.NewRet(nil)
 	return c.fn[f.ID]
 }
 
@@ -160,22 +173,25 @@ func (c *LLVMContext) VisitLiteralExpression(le *ast.LiteralExpression) interfac
 }
 
 func (c *LLVMContext) VisitPathExpression(pe *ast.PathExpression) interface{} {
-	return c.lookupVariable(strings.Join(pe.Segments, "::"))
+	return c.lookupVariable(strings.Join([]string(pe.Segments), "::"))
 }
 
 func (c *LLVMContext) VisitIfExpression(ie *ast.IfExpression) interface{} {
 	thenCtx := c.NewLLVMContext(c.Parent.NewBlock("if.then"))
 	thenCtx.Visit(ie.IfTrue)
+	elseBlock := c.Parent.NewBlock("if.else")
+	elseCtx := c.NewLLVMContext(elseBlock)
+	c.NewCondBr(c.Visit(ie.Expr).(value.Value), thenCtx.Block, elseBlock)
+	if thenCtx.Term == nil {
+		thenCtx.NewBr(c.Parent.NewBlock("leave.if"))
+	}
 	switch elseExpr := ie.IfFalse.(type) {
 	case ast.BlockExpression:
-	case ast.IfExpression:
-		elseCtx := c.NewLLVMContext(c.Parent.NewBlock("if.else"))
 		elseCtx.Visit(elseExpr)
-		c.NewCondBr(c.Visit(ie.Expr).(value.Value), thenCtx.Block, elseCtx.Block)
-		thenCtx.NewBr(c.Parent.NewBlock("leave.if"))
+	case ast.IfExpression:
+		elseCtx.Visit(elseExpr)
 	default:
-		elseContinueBlock := c.Parent.NewBlock("leave.if")
-		c.NewCondBr(c.Visit(ie.Expr).(value.Value), thenCtx.Block, elseContinueBlock)
+		elseCtx.NewBr(nil)
 	}
 	return nil
 }
@@ -292,12 +308,12 @@ func (c *LLVMContext) VisitTypeCastExpression(tce *ast.TypeCastExpression) inter
 }
 
 func (c *LLVMContext) VisitCallExpression(ce *ast.CallExpression) interface{} {
-	fnName := c.Visit(ce.FnHeader).(value.Value)
+	fnName := c.Visit(ce.FnHeader).(value.Named)
 	paramValues := make([]value.Value, 0)
 	for _, param := range ce.Params {
 		paramValues = append(paramValues, c.Visit(param).(value.Value))
 	}
-	return c.callFunction(fnName.Ident(), paramValues...)
+	return c.callFunction(fnName.Name(), paramValues...)
 }
 
 func (c *LLVMContext) VisitBorrowExpression(be *ast.BorrowExpression) interface{} {
@@ -305,7 +321,7 @@ func (c *LLVMContext) VisitBorrowExpression(be *ast.BorrowExpression) interface{
 }
 
 func (c *LLVMContext) VisitArrayIndexExpression(aie *ast.ArrayIndexExpression) interface{} {
-	indexStr := c.Visit(aie.Index).(value.Value).Ident()
+	indexStr := c.NewLoad(types.I64, c.Visit(aie.Index).(value.Value)).Ident()
 	if index, err := strconv.Atoi(indexStr); err == nil {
 		obj := c.Visit(aie.Index).(value.Value)
 		return c.NewExtractValue(obj, uint64(index))
@@ -335,21 +351,29 @@ func (c *LLVMContext) VisitTypePath(tp *ast.TypePath) interface{} {
 	finalType := strings.Join(nodes, "::")
 	switch finalType {
 	case "i8":
+		return types.I8
 	case "u8":
+		return types.I8
 	case "char":
 		return types.I8
 	case "i16":
+		return types.I16
 	case "u16":
 		return types.I16
 	case "i32":
+		return types.I32
 	case "u32":
 		return types.I32
 	case "i64":
+		return types.I64
 	case "u64":
+		return types.I64
 	case "isize":
+		return types.I64
 	case "usize":
 		return types.I64
 	case "i128":
+		return types.I128
 	case "u128":
 		return types.I128
 	case "str":

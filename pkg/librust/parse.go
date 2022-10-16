@@ -6,8 +6,10 @@ import (
 
 	"github.com/Compiler2022/compilers-1-Belstowe/parser"
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/ast"
+	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/llvmir"
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/semantics"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
+	"github.com/llir/llvm/ir"
 	"gopkg.in/yaml.v3"
 )
 
@@ -98,15 +100,27 @@ func Parse(in io.Reader, out io.Writer, to_dump_tokens bool, to_dump_ast bool, v
 	symtabBuilder := semantics.NewANTLRSemVisitor()
 	ast.Accept(symtabBuilder)
 
+	numOfErrors := 0
 	for _, log := range symtabBuilder.DumpLogs().([]semantics.Message) {
 		if log.Type == semantics.INFO && !verbose {
 			continue
+		}
+		if log.Type == semantics.ERROR {
+			numOfErrors += 1
 		}
 		_, err := out.Write([]byte(log.String() + "\n"))
 		if err != nil {
 			panic(err)
 		}
 	}
+
+	if numOfErrors != 0 {
+		out.Write([]byte(fmt.Sprintf("Semantics analyzer found %d errors, can't continue.", numOfErrors)))
+		return
+	}
+
+	llvmctx := llvmir.NewLLVMContext()
+	fmt.Println(llvmctx.Visit(ast).(*ir.Module))
 }
 
 func DumpErrors(errors []Error, out io.Writer) {
