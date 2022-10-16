@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/Compiler2022/compilers-1-Belstowe/pkg/librust/ast"
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 )
 
@@ -14,14 +13,12 @@ type ANTLRSemVisitor struct {
 	ast.RusterBaseVisitor
 	scopes []Scope
 	logs   []Message
-	irm    *ir.Module
 }
 
 func NewANTLRSemVisitor() ast.RusterBaseVisitor {
 	return &ANTLRSemVisitor{
 		scopes: make([]Scope, 0),
 		logs:   make([]Message, 0),
-		irm:    ir.NewModule(),
 	}
 }
 
