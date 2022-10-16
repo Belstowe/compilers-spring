@@ -137,7 +137,9 @@ func (c *LLVMContext) VisitFunction(f *ast.Function) interface{} {
 		newc = c.NewFunction(f.ID, c.Visit(f.ReturnType).(types.Type), params...)
 	}
 	newc.Visit(f.Body)
-	newc.NewRet(nil)
+	if newc.Block.Term == nil {
+		newc.NewRet(nil)
+	}
 	return c.fn[f.ID]
 }
 
@@ -182,17 +184,18 @@ func (c *LLVMContext) VisitIfExpression(ie *ast.IfExpression) interface{} {
 	elseBlock := c.Parent.NewBlock("if.else")
 	elseCtx := c.NewLLVMContext(elseBlock)
 	c.NewCondBr(c.Visit(ie.Expr).(value.Value), thenCtx.Block, elseBlock)
+	leaveBlock := c.Parent.NewBlock("leave.if")
 	if thenCtx.Term == nil {
-		thenCtx.NewBr(c.Parent.NewBlock("leave.if"))
+		thenCtx.NewBr(leaveBlock)
 	}
+	elseCtx.NewBr(leaveBlock)
 	switch elseExpr := ie.IfFalse.(type) {
 	case ast.BlockExpression:
 		elseCtx.Visit(elseExpr)
 	case ast.IfExpression:
 		elseCtx.Visit(elseExpr)
-	default:
-		elseCtx.NewBr(nil)
 	}
+	c.Block = leaveBlock
 	return nil
 }
 
@@ -204,6 +207,7 @@ func (c *LLVMContext) VisitInfiniteLoopExpression(ile *ast.InfiniteLoopExpressio
 	loopCtx.backBlock = backBlock
 	loopCtx.Visit(ile.Body)
 	loopCtx.NewBr(backBlock)
+	c.Block = leaveBlock
 	return nil
 }
 
@@ -220,6 +224,7 @@ func (c *LLVMContext) VisitPredicateLoopExpression(ple *ast.PredicateLoopExpress
 	loopCtx.backBlock = backBlock
 	loopCtx.Visit(ple.Body)
 	loopCtx.NewBr(condCtx.Block)
+	c.Block = leaveBlock
 	return nil
 }
 
