@@ -158,30 +158,21 @@ func (c *LLVMContext) VisitFunction(f *ast.Function) interface{} {
 }
 
 func (c *LLVMContext) VisitLetStatement(ls *ast.LetStatement) interface{} {
-	tp := c.Visit(ls.VarType)
-	switch specType := tp.(type) {
-	case string:
-		strValue := c.Visit(ls.Expr).(value.Value)
-		v := c.NewAlloca(strValue.Type())
-		c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
-		for i := 0; i < int(strValue.Type().(*types.ArrayType).Len); i++ {
-			pToElem := c.NewGetElementPtr(strValue.Type(), v, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, int64(i)))
-			c.NewStore(constant.NewInt(types.I8, int64('b')), pToElem)
-		}
-	case types.Type:
-		v := c.NewAlloca(specType)
-		if ls.Expr != nil {
-			c.NewStore(c.Visit(ls.Expr).(value.Value), v)
-		}
-		c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
+	tp := c.Visit(ls.VarType).(types.Type)
+	v := c.NewAlloca(tp)
+	if ls.Expr != nil {
+		c.NewStore(c.Visit(ls.Expr).(value.Value), v)
 	}
+	c.vars[c.Visit(ls.Ptrn).(LLVMPatternStruct).ID] = v
 	return nil
 }
 
 func (c *LLVMContext) VisitLiteralExpression(le *ast.LiteralExpression) interface{} {
 	switch le.Tp {
 	case ast.String:
-		return constant.NewCharArrayFromString(le.Val)
+		// return constant.NewCharArrayFromString(le.Val)
+		constStr := c.NewGlobalDef("", constant.NewCharArrayFromString(le.Val))
+		return c.NewGetElementPtr(constStr.Typ.ElemType, constStr, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0))
 	case ast.Boolean:
 		return constant.NewBool(func() bool {
 			if strings.ToLower(le.Val) == "true" || le.Val == "1" {
@@ -350,7 +341,7 @@ func (c *LLVMContext) VisitCallExpression(ce *ast.CallExpression) interface{} {
 	fnName := c.Visit(ce.FnHeader).(value.Named)
 	paramValues := make([]value.Value, 0)
 	for _, param := range ce.Params {
-		paramValues = append(paramValues, c.Visit(param).(value.Value))
+		paramValues = append(paramValues, c.getVariableValue(c.Visit(param).(value.Value)))
 	}
 	return c.callFunction(fnName.Name(), paramValues...)
 }
@@ -416,7 +407,7 @@ func (c *LLVMContext) VisitTypePath(tp *ast.TypePath) interface{} {
 	case "u128":
 		return types.I128
 	case "str":
-		return ""
+		return types.NewPointer(types.I8)
 	}
 	return types.Void
 }

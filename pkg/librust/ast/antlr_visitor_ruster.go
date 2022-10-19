@@ -369,9 +369,9 @@ func (v *ANTLRRusterVisitor) VisitIfExpression(ctx *parser.IfExpressionContext) 
 	expr.Expr = v.Visit(ctx.Cond).(Expression)
 	expr.IfTrue = v.Visit(ctx.IfBody).(BlockExpression)
 	if ctx.ElseIf != nil {
-		expr.IfFalse = v.Visit(ctx.Cond).(IfExpression)
+		expr.IfFalse = v.Visit(ctx.ElseIf).(IfExpression)
 	} else if ctx.ElseBody != nil {
-		expr.IfFalse = v.Visit(ctx.Cond).(BlockExpression)
+		expr.IfFalse = v.Visit(ctx.ElseBody).(BlockExpression)
 	} else {
 		expr.IfFalse = nil
 	}
