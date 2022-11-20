@@ -1,28 +1,16 @@
-# Ignore everything
 *
 
-# But not these files...
-!/.gitignore
-!/.github/**
-!**/examples/**/*.rs
-!/scripts/**
-!/build/grammar/*.g4
+!.gitignore
+!.gitkeep
 
-!*.go
-!go.sum
-!go.mod
+!CMakeLists.txt
+!*.cmake
 
-!README.md
-!LICENSE
+!*.cpp
+!*.hpp
+!*.c
+!*.h
+!*.sh
 
-# !Makefile
-
-# ...even if they are in subdirectories
 !*/
-
-# ANTLR generated parser
-/parser/
-
-# Docker
-!.dockerignore
-!Dockerfile
+build/
