@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11..3.21)
+cmake_minimum_required(VERSION 3.14..3.21)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
@@ -11,9 +11,12 @@ endif()
 include(CMakePrintHelpers)
 
 project(
-	proj
+	llir-graph
 	VERSION 0.1
-	LANGUAGES CXX)
+	LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(LLVM REQUIRED CONFIG)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" "clang-tidy-*")
 

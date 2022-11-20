@@ -1,1 +1,1 @@
-add_subdirectory(proj)
+add_subdirectory(llir-graph)
