@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include "cli.hpp"
 
 using llir_graph::cli::CLIArgs;
@@ -24,8 +26,8 @@ namespace llir_graph::cli
         CLICheck(const CLIArgs &args)
             : cliErrors_()
         {
-            validate(args.inputFilePath().empty(), "input path not given");
-            // validate(args.outputFilePath().empty(), "output path not given");
+            if (validate(args.inputFilePath().empty(), "input path not given"))
+                validate(!std::filesystem::exists(args.inputFilePath()), "no file exists at given path");
             int graphFlagCount = args.callGraph() + args.defUseGraph();
             validate(graphFlagCount > 1, "more than one graph flag specified");
             validate(graphFlagCount < 1, "no graph flags specified");
